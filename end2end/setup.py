@@ -4,7 +4,8 @@ from pybind11.setup_helpers import Pybind11Extension
 import sys
 
 import os
-os.system("export CUSPARSELT_PATH=/home/roberto.lopez/Descargas/libcusparse_lt-linux-x86_64-0.3.0.3-archive")
+os.system("export CUSPARSELT_PATH=/media/rtx3090/Disco2TB/inno4scale_shared/repositorios/libcusparse_lt-linux-x86_64-0.3.0.3-archive")
+os.system("export CUSPARSELT_PATH=/media/rtx3090/Disco2TB/inno4scale_shared/repositorios/libcusparse_lt-linux-x86_64-0.3.0.3-archive")
 
 setup(
     name='spatha',
@@ -15,8 +16,7 @@ setup(
     ext_modules=[
             CUDAExtension('spatha',
                               ['spatha_mod/block_sparse/api/spatha.cu'],
-                              extra_compile_args={'cxx':[], 'nvcc':['-arch=sm_86', '--ptxas-options=-v', '-lineinfo']},
-                              extra_link_args=['-lcusparseLt','-lcudart','-lcusparse'])
+                              extra_compile_args={'cxx':[], 'nvcc':['-arch=sm_86', '--ptxas-options=-v', '-lineinfo', '-I/media/rtx3090/Disco2TB/inno4scale_shared/repositorios/libcusparse_lt-linux-x86_64-0.3.0.3-archive/include']})
                   ],
     cmdclass={'build_ext': BuildExtension},
     install_requires=['torch']

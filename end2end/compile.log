@@ -1,0 +1,31 @@
+bash: /home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/libtinfo.so.6: no version information available (required by bash)
+WARNING: Skipping spatha as it is not installed.
+running build
+running build_ext
+building 'spatha' extension
+creating build/temp.linux-x86_64-cpython-310/spatha_mod/block_sparse/api
+/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/bin/nvcc -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/include -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/include/TH -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/include/THC -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/include -I/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/include/python3.10 -c spatha_mod/block_sparse/api/spatha.cu -o build/temp.linux-x86_64-cpython-310/spatha_mod/block_sparse/api/spatha.o -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -arch=sm_86 --ptxas-options=-v -lineinfo -DV_64 -I/media/rtx3090/Disco2TB/inno4scale_shared/repositorios/libcusparse_lt-linux-x86_64-0.3.0.3-archive/include -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -DTORCH_EXTENSION_NAME=spatha -D_GLIBCXX_USE_CXX11_ABI=0 -ccbin /home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/bin/x86_64-conda-linux-gnu-cc -std=c++14
+nvcc error   : '"/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/bin"/x86_64-conda-linux-gnu-cc' died due to signal 2 
+interrupted
+Traceback (most recent call last):
+  File "/media/rtx3090/Disco2TB/inno4scale_shared/repositorios/venom-training/end2end/setup_v64.py", line 2, in <module>
+    from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtension
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/__init__.py", line 884, in <module>
+    from torch import hub as hub
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/torch/hub.py", line 20, in <module>
+    from tqdm.auto import tqdm  # automatically select proper tqdm submodule if available
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/tqdm/auto.py", line 23, in <module>
+    from .asyncio import tqdm as asyncio_tqdm
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/site-packages/tqdm/asyncio.py", line 10, in <module>
+    import asyncio
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/asyncio/__init__.py", line 8, in <module>
+    from .base_events import *
+  File "/home/diego.teijeiro/inno4scale_shared/anaconda3/envs/end2end/lib/python3.10/asyncio/base_events.py", line 43, in <module>
+    from . import protocols
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1012, in get_code
+  File "<frozen importlib._bootstrap_external>", line 672, in _compile_bytecode
+KeyboardInterrupt

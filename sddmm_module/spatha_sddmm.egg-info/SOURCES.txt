@@ -1,0 +1,7 @@
+setup.py
+module_files/block_sparse/api/spatha.cu
+spatha_sddmm.egg-info/PKG-INFO
+spatha_sddmm.egg-info/SOURCES.txt
+spatha_sddmm.egg-info/dependency_links.txt
+spatha_sddmm.egg-info/requires.txt
+spatha_sddmm.egg-info/top_level.txt

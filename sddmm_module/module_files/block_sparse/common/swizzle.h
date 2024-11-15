@@ -1,0 +1,29 @@
+#pragma once
+#include "base.h"
+
+namespace spatha_sddmm {
+
+struct SwizzleIdentity {
+    DEVICE_INLINE
+    int operator()(int offset) {
+        return offset;
+    }
+};
+
+struct Swizzle8BWiseXor {
+    DEVICE_INLINE
+    int operator()(int offset) {
+        return (offset ^
+                ((offset & (7<<6))>>3));
+    }
+};
+
+struct Swizzle16BWiseXor {
+    DEVICE_INLINE
+    int operator()(int offset) {
+        return (offset ^
+                ((offset & (7<<7))>>4));
+    }
+};
+
+}

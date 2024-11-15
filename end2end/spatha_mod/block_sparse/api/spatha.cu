@@ -148,30 +148,8 @@ torch::Tensor spmm(torch::Tensor A_metadata,
                         seed, mbrow, brow);
 }
 
-/* torch::Tensor spmm(
-                        torch::Tensor A_values,
-                        torch::Tensor rhs_matrix,
-                        torch::Tensor bias,
-                        int A_num_rows,
-                        int A_num_cols,
-                        int B_num_cols,
-                        int vec_length,
-                        int n,
-                        int m,
-                        int nnz,
-                        int seed,
-                        int mbrow,
-                        int brow)
-{
-    return spmm_cuda(A_values, rhs_matrix, bias,
-                        A_num_rows, A_num_cols, B_num_cols,
-                        vec_length, n, m, nnz,
-                        seed, mbrow, brow);
-}
-torch::Tensor compress(torch::Tensor sparse_input)
-{
-    return _cslt_compress(sparse_input);
-} */
+
+
 
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m){

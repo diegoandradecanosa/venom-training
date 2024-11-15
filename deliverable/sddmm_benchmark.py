@@ -13,10 +13,26 @@ import statistics
 import spatha
 import spatha_sddmm
 
+from venom_tensor_diego import SparseVNMTensor
+
 try:
     cache = functools.cache
 except AttributeError:
     cache = functools.lru_cache(maxsize=None)
+
+
+
+# Set VENOM parameters. Done here for testing purposes, should be set in main and passed through methods.
+v=64
+n=2
+m=8
+
+
+
+
+
+
+
 
 
 def report_time(name, data, number, v, n, m):
@@ -35,407 +51,6 @@ def report_time(name, data, number, v, n, m):
     print(
         "0,"+cfg+str(v)+","+str(mean)+","+str(median)+","+str(std)+","+str(len(ds))
     )
-
-@cache
-def venom2dense(dense_shape, dense_dtype, n, m, tileM):
-    nrows = dense_shape[0]
-    ncols = dense_shape[1]
-
-    A_size = nrows*ncols
-    density = n/m
-
-    brow = 4 #this->brow = brow_;
-    mbrow = 32 #this->mbrow = mbrow_;
-
-    bm   = tileM
-    # !IMPORTANT! constants because of architecture constraints
-    m_fixed = 4
-    bits_elem_meta=2
-    mrow_m = 2
-    bits_elem_cols=8
-    brow_fixed = 16
-    nelems=32//bits_elem_meta #(sizeof(uint)*8)=32
-    nelems_col = nelems//mrow_m
-
-    A_num_cols_sp = (ncols/m)*n
-    A_num_cols_sp_pad_nm = (round_up(ncols, m)/m)*n
-    A_num_cols_sp_pad = round_up((round_up(ncols, m)/m)*n, 16)
-    A_nnz = nrows*A_num_cols_sp_pad
-
-    assert dense_dtype in (torch.float32, torch.float64)
-    dtype = "float" if dense_dtype == torch.float32 else "double"
-    lib = compile(
-        f"""
-        #include <iostream>
-        #include <algorithm>
-        #include <utility>
-        #include <cstdlib>
-        #include <cstdio>
-        #include <cmath>
-        #include <functional>
-        #include <tuple>
-        #include <vector>
-        #include <numeric>
-        #include <chrono>
-
-        using namespace std;
-
-
-        extern "C" void func3({dtype}* hA_dense, {dtype}* hA_values, int *hA_columns, int *hA_metadata){{
-            //this->hA_dense.resize(this->A_size, 0);
-
-            // general variables N:M format
-            int bm_m = {nrows}/{bm};
-            int mbrow_m = {bm}/{mbrow};
-            int mbrow_m2 = {mbrow}/{brow_fixed};
-            int brow_m = {brow_fixed}/{brow};
-            // metadata
-            int mcol_kk = {nelems}/{mrow_m}/{n};
-            int mcol_k = {A_num_cols_sp_pad}/{n}/mcol_kk;
-            // indices
-            int col_kk = mcol_kk;
-            int col_k = {A_num_cols_sp_pad}/{n}/col_kk;
-
-            uint indexes[{nelems}];
-            uint columns[col_kk*{m_fixed}];
-
-            for(int bm_i=0; bm_i<bm_m; bm_i++){{
-                for(int mbrow_i=0; mbrow_i<mbrow_m; mbrow_i++){{
-                    for(int mbrow_i2=0; mbrow_i2<mbrow_m2; mbrow_i2++){{
-                        for(int brow_i=0; brow_i<brow_m; brow_i++){{
-                            for(int mcol_i=0; mcol_i<mcol_k; mcol_i++){{
-                                //read columns indexes
-                                for(int col_i=0; col_i<col_kk; col_i++){{
-                                    for(int col_ii=0; col_ii<{m_fixed}; col_ii++){{
-                                        columns[col_i*{m_fixed} + col_ii] =
-                                        hA_columns[bm_i*col_k*col_kk*{m_fixed} + mcol_i*col_kk*{m_fixed} + col_i*{m_fixed} + col_ii];
-                                    }}
-                                }}
-                                // read metadata
-                                for(int mbrow_ii=0; mbrow_ii<({brow}/{mrow_m}); mbrow_ii++){{
-                                    for(int mbrow_iii=0; mbrow_iii<{mrow_m}; mbrow_iii++){{
-                                        for(int mcol_ii=0; mcol_ii<mcol_kk; mcol_ii++){{
-                                            for (int n_i=0; n_i<{n}; n_i++) {{
-                                                indexes[
-                                                    mbrow_iii*{n} +
-                                                    mcol_ii*{mrow_m}*{n} +
-                                                    n_i] =
-                                                (((hA_metadata[
-                                                    bm_i*mcol_k*{bm}/{mrow_m} +
-                                                    mbrow_i*mcol_k*{mbrow}/{mrow_m} +
-                                                    mbrow_i2*{brow_fixed}/{mrow_m} +
-                                                    brow_i*{brow}/{mrow_m}  +
-                                                    mcol_i*{mbrow}/{mrow_m} +
-                                                    mbrow_ii]) >> (mbrow_iii*({nelems}/{mrow_m})*{bits_elem_meta}+mcol_ii*{n}*{bits_elem_meta}+n_i*{bits_elem_meta})) & 0x3);
-                                            }}
-                                        }}
-                                    }}
-
-                                    for(int mcol_ii=0; mcol_ii<mcol_kk; mcol_ii++){{
-                                        for(int mbrow_iii=0; mbrow_iii<{mrow_m}; mbrow_iii++){{
-                                            for(int n_i=0; n_i<{n}; n_i++){{
-                                                unsigned int index = columns[mcol_ii*{m_fixed} + indexes[mcol_ii*{mrow_m}*{n}+mbrow_iii*{n}+n_i]];
-
-                                                if((mcol_i*{m}*mcol_kk + mcol_ii*{m} + index) < {ncols}){{
-                                                    hA_dense[
-                                                        bm_i*{bm}*{ncols} +
-                                                        mbrow_i*{mbrow}*{ncols} +
-                                                        mbrow_i2*{brow_fixed}*{ncols} +
-                                                        brow_i*{brow}*{ncols} +
-                                                        mcol_i*{m}*mcol_kk +
-                                                        mbrow_ii*{mrow_m}*{ncols} +
-                                                        mcol_ii*{m} +
-                                                        mbrow_iii*{ncols} +
-                                                        index] =
-                                                    hA_values[
-                                                        bm_i*{bm}*{A_num_cols_sp_pad} +
-                                                        mbrow_i*{mbrow}*{A_num_cols_sp_pad}+
-                                                        mbrow_i2*{brow_fixed}*{A_num_cols_sp_pad}+
-                                                        brow_i*{brow}*{nelems}/{mrow_m}+
-                                                        mcol_i*{brow_fixed}*{nelems}/{mrow_m} +
-                                                        mbrow_ii*{mrow_m}*{n} +
-                                                        mcol_ii*{n}*{brow} +
-                                                        mbrow_iii*{n} +
-                                                        n_i];
-                                                }}
-                                            }}
-                                        }}
-                                    }}
-                                }}
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-        }}
-        """,
-    )
-    lib.func3.argtypes = [
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-    ]
-    return lib.func3
-
-
-@cache
-def dense2venom(dense_shape, dense_dtype, n, m, tileM):
-    nrows = dense_shape[0]
-    ncols = dense_shape[1]
-
-    brow = 4 #this->brow = brow_;
-    mbrow = 32 #this->mbrow = mbrow_;
-
-    bm   = tileM
-    # !IMPORTANT! constants because of architecture constraints
-    m_fixed = 4
-    bits_elem_meta=2
-    mrow_m = 2
-    bits_elem_cols=8
-    brow_fixed = 16
-    nelems=32//bits_elem_meta #(sizeof(uint)*8)=32
-    nelems_col = nelems//mrow_m
-
-    A_num_cols_sp = (ncols//m)*n
-    A_num_cols_sp_pad_nm = (round_up(ncols, m)/m)*n
-    A_num_cols_sp_pad = round_up((round_up(ncols, m)/m)*n, 16)
-    A_nnz = nrows*A_num_cols_sp_pad
-
-    assert dense_dtype in (torch.float32, torch.float64)
-    dtype = "float" if dense_dtype == torch.float32 else "double"
-    lib = compile(
-        f"""
-        #include <iostream>
-        #include <algorithm>
-        #include <utility>
-        #include <cstdlib>
-        #include <cstdio>
-        #include <cmath>
-        #include <functional>
-        #include <tuple>
-        #include <vector>
-        #include <numeric>
-        #include <chrono>
-
-        using namespace std;
-
-
-        extern "C" void func2({dtype}* sparse, int* masks, {dtype}* hA_values, int *hA_columns, int *hA_metadata){{
-
-            int bm_m = {nrows}/{bm};
-            int mbrow_m = {bm}/{mbrow};
-            int mbrow_m2 = {mbrow}/{brow_fixed};
-            int brow_m = {brow_fixed}/{brow};
-            // metadata
-            int mcol_kk = {nelems}/{mrow_m}/{n};
-            int mcol_k = {A_num_cols_sp_pad}/{n}/mcol_kk;
-            // indices
-            int col_kk = mcol_kk;
-            int col_k = {A_num_cols_sp_pad}/{n}/col_kk;
-
-            {dtype} values[{nelems}];
-            uint indexes[{nelems}];
-            uint columns[col_kk*{m_fixed}];
-
-            int max_idx = 0;
-
-            for(int bm_i=0; bm_i<bm_m; bm_i++){{
-                for(int mbrow_i=0; mbrow_i<mbrow_m; mbrow_i++){{
-                    for(int mbrow_i2=0; mbrow_i2<mbrow_m2; mbrow_i2++){{
-                        for(int brow_i=0; brow_i<brow_m; brow_i++){{
-                            for(int mcol_i=0; mcol_i<mcol_k; mcol_i++){{
-                                for(int col_i=0; col_i<col_kk; col_i++){{
-                                    for(int col_ii=0; col_ii<{m_fixed}; col_ii++){{
-                                        columns[col_i*{m_fixed} + col_ii] =
-                                        hA_columns[bm_i*col_k*col_kk*{m_fixed} + mcol_i*col_kk*{m_fixed} + col_i*{m_fixed} + col_ii];
-                                    }}
-                                }}
-                                for(int mbrow_ii=0; mbrow_ii<({brow}/{mrow_m}); mbrow_ii++){{
-                                    for(int mcol_ii=0; mcol_ii<mcol_kk; mcol_ii++){{
-                                        for(int mbrow_iii=0; mbrow_iii<{mrow_m}; mbrow_iii++){{
-                                            int pos=0;
-                                            for(int n_i=0; n_i<{m_fixed}; n_i++){{
-                                                unsigned int index = columns[mcol_ii*{m_fixed} + n_i];
-
-                                                if((mcol_i*{m}*mcol_kk + mcol_ii*{m} + index) < {ncols}){{
-                                                    int nnz = masks[
-                                                            bm_i*{bm}*{ncols} +
-                                                            mbrow_i*{mbrow}*{ncols} +
-                                                            mbrow_i2*{brow_fixed}*{ncols} +
-                                                            brow_i*{brow}*{ncols} +
-                                                            mcol_i*{m}*mcol_kk +
-                                                            mbrow_ii*{mrow_m}*{ncols} +
-                                                            mcol_ii*{m} +
-                                                            mbrow_iii*{ncols} +
-                                                            index];
-
-                                                    if(nnz != 0){{
-                                                        indexes[
-                                                            mbrow_iii*{n} +
-                                                            mcol_ii*{mrow_m}*{n} +
-                                                            pos] = n_i;
-
-                                                        values[
-                                                            mcol_ii*{mrow_m}*{n} +
-                                                            mbrow_iii*{n} +
-                                                            pos] =
-                                                        sparse[
-                                                            bm_i*{bm}*{ncols} +
-                                                            mbrow_i*{mbrow}*{ncols} +
-                                                            mbrow_i2*{brow_fixed}*{ncols} +
-                                                            brow_i*{brow}*{ncols} +
-                                                            mcol_i*{m}*mcol_kk +
-                                                            mbrow_ii*{mrow_m}*{ncols} +
-                                                            mcol_ii*{m} +
-                                                            mbrow_iii*{ncols} +
-                                                            index];
-
-                                                        pos+=1;
-                                                    }}
-                                                }} else {{
-                                                    if(n_i<2){{
-                                                        indexes[
-                                                            mbrow_iii*{n} +
-                                                            mcol_ii*{mrow_m}*{n} +
-                                                            pos] = 0;
-
-                                                        values[
-                                                            mcol_ii*{mrow_m}*{n} +
-                                                            mbrow_iii*{n} +
-                                                            pos] = 0;
-
-                                                        pos+=1;
-                                                    }}
-                                                }}
-                                            }}
-                                        }}
-                                    }}
-                                    // write metadata
-                                    unsigned int meta=0;
-                                    for(int mbrow_iii=0; mbrow_iii<{mrow_m}; mbrow_iii++){{
-                                        for(int mcol_ii=0; mcol_ii<mcol_kk; mcol_ii++){{
-                                            for (int n_i=0; n_i<{n}; n_i++) {{
-
-                                                int idx = bm_i*{bm}*{A_num_cols_sp_pad} +
-                                                        mbrow_i*{mbrow}*{A_num_cols_sp_pad}+
-                                                        mbrow_i2*{brow_fixed}*{A_num_cols_sp_pad}+
-                                                        brow_i*{brow}*{nelems}/{mrow_m}+
-                                                        mcol_i*{brow_fixed}*{nelems}/{mrow_m} +
-                                                        mbrow_ii*{mrow_m}*{n} +
-                                                        mcol_ii*{n}*{brow} +
-                                                        mbrow_iii*{n} +
-                                                        n_i;
-
-                                                max_idx = (idx>max_idx)?(idx):(max_idx);
-
-                                                hA_values[
-                                                        idx] =
-                                                values[
-                                                    mcol_ii*{mrow_m}*{n} +
-                                                    mbrow_iii*{n} +
-                                                    n_i];
-
-                                                unsigned int tmp = indexes[
-                                                            mbrow_iii*{n} +
-                                                            mcol_ii*{mrow_m}*{n} +
-                                                            n_i];
-                                                meta |= (tmp << (mbrow_iii*({nelems}/{mrow_m})*{bits_elem_meta}+mcol_ii*{n}*{bits_elem_meta}+n_i*{bits_elem_meta}));
-                                            }}
-                                        }}
-                                    }}
-                                    hA_metadata[bm_i*mcol_k*{bm}/{mrow_m} +
-                                                mbrow_i*mcol_k*{mbrow}/{mrow_m} +
-                                                mbrow_i2*{brow_fixed}/{mrow_m} +
-                                                brow_i*{brow}/{mrow_m}  +
-                                                mcol_i*{mbrow}/{mrow_m} +
-                                                mbrow_ii] = meta;
-                                }}
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-            cout << "max_idx: " << max_idx << endl;
-        }}
-        """,
-    )
-    lib.func2.argtypes = [
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-    ]
-    return lib.func2
-
-def round_up(x,y):
-    return math.ceil(x/y)*y
-
-class SparseVNMTensor:
-    def __init__(self, n_, m_, v_, dense_, mask_, columns_, device_):
-        self.n = n_
-        self.m = m_
-        self.v = v_
-        self.nnz = 0
-        self.nrows = None
-        self.ncols = None
-        
-        self.dense = dense_.cpu().to(dtype=torch.float32)
-        self.device=device_
-        
-        self.columns = columns_
-        self.values = None
-        self.metadata = None
-
-        self.mask = mask_
-
-        self.to_venom(dense_.cpu().to(dtype=torch.float32), mask_.cpu())
-
-    def to_venom(self, dense_, mask_):
-        impl_builder = (
-            dense2venom
-            )
-        func = impl_builder(
-                dense_.shape,
-                dense_.dtype,
-                self.n,
-                self.m,
-                self.v
-            )
-
-        self.nrows, self.ncols = dense_.shape
-        A_num_cols_sp_pad = round_up((round_up(self.ncols, self.m)/self.m)*self.n, 16)
-        self.nnz = self.nrows*A_num_cols_sp_pad
-        m_fixed = 4
-        mrow_m = 2
-        bits_elem_meta=2
-
-        nelems = 32//bits_elem_meta
-        nelems_col = nelems//mrow_m
-
-        self.values = torch.zeros(self.nrows * A_num_cols_sp_pad, dtype=torch.float32, device="cpu")
-        self.metadata = torch.zeros(self.nrows//mrow_m * A_num_cols_sp_pad//nelems_col, dtype=torch.int32, device="cpu")
-        
-        func(dense_.data_ptr(), mask_.data_ptr(), self.values.data_ptr(), self.columns.data_ptr(), self.metadata.data_ptr())
-
-    def to_dense(self):
-        impl_builder = (
-            venom2dense
-            )
-        func = impl_builder(
-                (self.nrows, self.ncols),
-                torch.float32, 
-                self.n,
-                self.m,
-                self.v
-            )
-        # initialize with ones
-        dense = torch.zeros((self.nrows, self.ncols), dtype=self.values.dtype, device="cpu", requires_grad=True)
-        
-        func(dense.data_ptr(), self.values.data_ptr(), self.columns.data_ptr(), self.metadata.data_ptr())
-
-        return dense.to(device="cuda:0").half()
 
 class NMVectorSparsifier:
     def __init__(self, n, m, v):
@@ -461,13 +76,37 @@ class NMVectorSparsifier:
         mask = NMVectorSparsifier.get_random_mask(tensor, self.m, self.v)
 
         sparse_mtx = sten.SparseTensorWrapper.wrapped_from_dense(
-            SparseVNMTensor(self.n, self.m, self.v, tensor, mask, columns, tensor.device),
+            SparseVNMTensor(self.n, self.m, self.v, tensor.device, dense=tensor, mask=mask, columns=columns ),
             tensor,
             grad_fmt,
         )
 
         return sparse_mtx
 
+
+def sparse_dense_mul_dispatch(sparse_values, sparse_indices, sparse_metadata, dense, nrows_sp, ncols_sp, ncols_d, m, n, v, nnz, bias):
+
+    dense_ = dense.contiguous()
+
+    output = spatha.spmm(
+                          sparse_metadata,  # metadata
+                          sparse_indices,   # indices
+                          sparse_values,    # values
+                          dense_,           # rhs_matrix
+                          bias,             # bias
+                          nrows_sp,         # A_num_rows
+                          ncols_sp,         # A_num_cols
+                          ncols_d,          # B_num_cols
+                          v,                # V
+                          n,                # N
+                          m,                # M
+                          nnz,              # nnz
+                          0,                # seed
+                          32,               # mbrow
+                          4                 # brow
+                          )
+
+    return output
 
 
 # Autograd function to perform forward and backwards operations using VENOM tensors using dense algebra with masked tensors
@@ -557,17 +196,26 @@ class VenomMaskedLinear(torch.nn.Module):
 # Autograd function to perform forward and backwards operations using VENOM tensors and sparse computation from spatha
 class VenomSparseLinearFunction(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, input, sparse_weights, bias=None):
-        ctx.save_for_backward(input, bias) # sparse_weights cannot be saved as it is not a tensor
-        ctx.sparse_weights = sparse_weights
+    def forward(ctx, 
+                input, 
+                sparse_weights_values, 
+                bias, 
+                sparse_weights_columns, 
+                sparse_weights_metadata, 
+                sparse_weights_dense,
+                venom_v, venom_n, venom_m, nnz):# using underscores to avoid conflict with global variables.
+        #ctx.save_for_backward(input, bias) # sparse_weights cannot be saved as it is not a tensor
+        #ctx.sparse_weights = sparse_weights
+        ctx.save_for_backward(input, bias, sparse_weights_columns, sparse_weights_metadata, sparse_weights_dense)
         
-        #ctx.A_num_rows = A_num_rows
-        #ctx.A_num_cols = A_num_cols
-        #ctx.B_num_cols = B_num_cols
-        #ctx.v = v
-        #ctx.n = n
-        #ctx.m = m
-        #ctx.nnz = nnz
+        nrows, ncols = sparse_weights_dense.shape
+        ctx.sparse_weights_num_rows = nrows
+        ctx.sparse_weights_num_cols = ncols
+#        ctx.B_num_cols = B_num_cols
+        ctx.v = venom_v
+        ctx.n = venom_n
+        ctx.m = venom_m
+        ctx.nnz = nnz
         
         #output = torch.matmul(input, weight.t())
         #if bias is not None:
@@ -582,24 +230,39 @@ class VenomSparseLinearFunction(torch.autograd.Function):
         # output = torch.matmul(input, weights.T). Since we can't transpose weights (compressed)
         # output = torch.matmul(weights, input.T).T
         # spmm(weights, input.T) -> (weights*input).T
-        spmm_input = input.T.contiguous()
-        spmm_output = spatha.spmm(sparse_weights.metadata.cuda(),               # metadata
-                          sparse_weights.columns.cuda(),                        # indices
-                          sparse_weights.values.to(dtype=torch.half).cuda(),    # values
-                          spmm_input,                                              # rhs_matrix
-                          bias.to(dtype=torch.half).cuda(),                     # Bias
-                          sparse_weights.nrows,                                 # A_num_rows
-                          sparse_weights.ncols,                                 # A_num_cols
-                          spmm_input.shape[1],                                     # B_num_cols
-                          sparse_weights.v,                                     # vec_length
-                          sparse_weights.n,                                     # n
-                          sparse_weights.m,                                     # m
-                          sparse_weights.nnz,                                   # nnz
-                          0,                                                    # seed
-                          32,                                                   # mbrow
-                          4                                                     # brow
+        
+        
+        #output = sparse_dense_mul_dispatch( values,
+        #                                    columns,
+        #                                    metadata,
+        #                                    flattened_input.T,
+        #                                    nrows_sp,
+        #                                    ncols_sp,
+        #                                    ncols_d,
+        #                                    m,
+        #                                    n,
+        #                                    v,
+        #                                    0,
+        #                                    bias)
+        
+        spmm_input = torch.flatten(input, start_dim=0, end_dim=-2).T.contiguous()
+        spmm_output = spatha.spmm(sparse_weights_metadata,               # metadata
+                          sparse_weights_columns,                        # indices
+                          sparse_weights_values,                         # values
+                          spmm_input,                                    # rhs_matrix
+                          bias,                                          # Bias
+                          nrows,                          # A_num_rows
+                          ncols,                          # A_num_cols
+                          spmm_input.shape[1],                           # B_num_cols
+                          venom_v,                              # vec_length
+                          venom_n,                              # n
+                          venom_m,                              # m
+                          nnz,                            # nnz
+                          0,                                             # seed
+                          32,                                            # mbrow
+                          4                                              # brow
                           )
-        #output = output.reshape((*input.shape[0:-1], -1))[..., :sparse_weights.nrows]
+        spmm_output = spmm_output.reshape((*input.shape[0:-1], -1))[..., :nrows]
         #dense_masked_weight = torch.nn.Parameter(sparse_weights.to_dense())
         #output1 = torch.matmul(input, dense_masked_weight.t())
         #output2 = torch.matmul(dense_masked_weight, input.T).T
@@ -619,102 +282,93 @@ class VenomSparseLinearFunction(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        input, bias = ctx.saved_tensors
-        sparse_weights = ctx.sparse_weights
+        #input, bias = ctx.saved_tensors
+        input, bias, weights_columns, weights_metadata, weights_dense  = ctx.saved_tensors
+        #ctx.save_for_backward(input, bias, sparse_weights.columns, 
+        # sparse_weights.metadata, sparse_weights.dense)
+        #sparse_weights = ctx.sparse_weights
         
         global global_grad_output  
         global_grad_output = grad_output 
 
-        print(input.device, sparse_weights.device, grad_output.device)
+        #print(input.device, sparse_weights.device, grad_output.device)
 
         grad_input = grad_weight = grad_bias = None
         
         if ctx.needs_input_grad[0]:
-            grad_input = grad_output @ sparse_weights.dense.half().to("cuda:0")
+            grad_input = grad_output @ weights_dense
         
-        #if ctx.needs_input_grad[1]: # Do it always, due to weights being sparse, there is no 
-        #grad_weight = grad_output.t() @ input.to("cuda:0")
-        #grad_weight = grad_output.T.contiguous() @ input.to("cuda:0")
-        print("Launching sddmm kernel")
-        
-        sddmm_grad_output = grad_output.T.contiguous()
-        sddmm_input = input.T.contiguous()# Transpose both since sddmm does A@B.T, but we want A.T@B
-        print("Types:",  type(sddmm_grad_output),    
-                type(sddmm_input),                 
-                type(sparse_weights.metadata),
-                type(sparse_weights.columns), 
-                type(sparse_weights.nrows),
-                type(sparse_weights.ncols),
-                type(sparse_weights.n),                     
-                type(sparse_weights.m),                     
-                type(sparse_weights.nnz),     
-                type(0),                     
-                type(32),                    
-                type(4)                      
-                )
-        print("Values:",  sddmm_grad_output.shape, sddmm_grad_output[:8, :8],    
-                sddmm_input.shape, sddmm_input[:8, :8],                 
-                sparse_weights.metadata[:8],
-                sparse_weights.columns[:8], 
-                sparse_weights.nrows,
-                sparse_weights.ncols,
-                sparse_weights.n,                     
-                sparse_weights.m,                     
-                sparse_weights.nnz,     
-                0,                     
-                32,                    
-                4, sep="\n"                      
-                )
-        
-        print("sddmm_grad_output.shape:", sddmm_grad_output.shape)
-        print("sddmm_input.shape:", sddmm_input.shape)
-        
-        compressed_grad_weights = spatha_sddmm.sddmm(
-                        sddmm_grad_output,             # A_matrix
-                        sddmm_input,                   # B_matrix
-                        sparse_weights.metadata,       # C_metadata
-                        sparse_weights.columns,        # C_indices
-                        sparse_weights.nrows,          # C_num_rows
-                        sparse_weights.ncols,          # C_num_cols    
-                        sddmm_input.shape[1], 
-                        sparse_weights.n,              # N
-                        sparse_weights.m,              # M
-                        sparse_weights.nnz,            # nnz
-                        0,                             # seed
-                        32,                            # mbrow
-                        4                              # brow
-                        )
-        # Densify to return dense gradients. Can be optimized
-        #print("Densifying sddmm output")
-        #compressed_grad_weights = compressed_grad_weights.float().cpu()
-        #columns = sparse_weights.columns.cpu()
-        #metadata = sparse_weights.metadata.cpu()
-        #impl_builder = (
-        #            venom2dense
-        #            )
-        #func = impl_builder(
-        #        (sparse_weights.nrows, sparse_weights.ncols),
-        #        torch.float32, 
-        #        sparse_weights.n,
-        #        sparse_weights.m,
-        #        sparse_weights.v
-        #    )
-        #grad_weight = torch.zeros((sparse_weights.nrows, sparse_weights.ncols), dtype=compressed_grad_weights.dtype, device="cpu", requires_grad=True)
-        #func(grad_weight.data_ptr(), compressed_grad_weights.data_ptr(), columns.data_ptr(), metadata.data_ptr())
-        #print("")
-        #
-        grad_weight = compressed_grad_weights
+        if ctx.needs_input_grad[1]: 
+            
+            #grad_weight = grad_output.t() @ input.to("cuda:0")
+            #grad_weight = grad_output.T.contiguous() @ input.to("cuda:0")
+            #print("Launching sddmm kernel")
+            
+            sddmm_grad_output = torch.flatten(grad_output, start_dim=0, end_dim=-2)
+            sddmm_grad_output = sddmm_grad_output.T.contiguous()
+            sddmm_input = torch.flatten(input, start_dim=0, end_dim=-2)
+            sddmm_input = sddmm_input.T.contiguous()# Transpose both since sddmm does A@B.T, but we want A.T@B.
+            #print("Types:",  type(sddmm_grad_output),    
+            #        type(sddmm_input),                 
+            #        type(weights_metadata),
+            #        type(weights_columns), 
+            #        type(ctx.sparse_weights_num_rows),
+            #        type(ctx.sparse_weights_num_cols),
+            #        type(ctx.n),                     
+            #        type(ctx.m),                     
+            #        type(ctx.nnz),     
+            #        type(0),                     
+            #        type(32),                    
+            #        type(4)                      
+            #        )
+            #print("Values:",  sddmm_grad_output.shape, sddmm_grad_output[:8, :8],    
+            #        sddmm_input.shape, sddmm_input[:8, :8],                 
+            #        weights_metadata[:8],
+            #        weights_columns[:8], 
+            #        ctx.sparse_weights_num_rows,
+            #        ctx.sparse_weights_num_cols,
+            #        ctx.n,                     
+            #        ctx.m,                     
+            #        ctx.nnz,     
+            #        0,                     
+            #        32,                    
+            #        4, sep="\n"                      
+            #        )
+            #
+            #print("sddmm_grad_output.shape:", sddmm_grad_output.shape)
+            #print("sddmm_input.shape:", sddmm_input.shape)
+            
+            compressed_grad_weights = spatha_sddmm.sddmm(
+                            sddmm_grad_output,             # A_matrix
+                            sddmm_input,                   # B_matrix
+                            weights_metadata,              # C_metadata
+                            weights_columns,               # C_indices
+                            ctx.sparse_weights_num_rows,   # C_num_rows
+                            ctx.sparse_weights_num_cols,   # C_num_cols    
+                            sddmm_input.shape[1], 
+                            ctx.n,              # N
+                            ctx.m,              # M
+                            ctx.nnz,            # nnz
+                            0,                             # seed
+                            32,                            # mbrow
+                            4                              # brow
+                            )
+            #print("SDDMM kernel completed")
+            grad_weight = compressed_grad_weights.flatten()
         if bias is not None and ctx.needs_input_grad[2]:
             grad_bias = grad_output.sum(0)
         
-        print(ctx.needs_input_grad[0], ctx.needs_input_grad[1], ctx.needs_input_grad[2])
+        #print(ctx.needs_input_grad[0], ctx.needs_input_grad[1], ctx.needs_input_grad[2])
         """ print(grad_output)
         print(input)
         print(grad_weight) """
-        print(grad_input[:4, :4])
-        print(grad_weight[:4, :4])
-        
-        return grad_input, grad_weight, grad_bias
+        #print(grad_input[:4, :4])
+        #print(grad_weight[:4, :4])
+    
+        # Needs one return value for each forward argument.
+        #      input,      sparse_weights_values, bias,      sparse_weights_columns, sparse_weights_metadata, sparse_weights_dense, venom_v, venom_n, venom_m, nnz
+        return grad_input, grad_weight,           grad_bias, None,                   None,                    None,                 None,    None,    None,    None
+    
 
 
 # Torch.nn.Module subclass that sparsifies an existing torch.nn.lineal layer and uses dense algebra with a masked weights tensor.
@@ -723,34 +377,136 @@ class VenomSparseLinear(torch.nn.Module):
         super(VenomSparseLinear, self).__init__()        
 
         if isinstance(original, torch.nn.Linear):
-            self.w = NMVectorSparsifier(n, m, v)(original.weight).wrapped_tensor
+            self.compressed_weights = NMVectorSparsifier(n, m, v)(original.weight).wrapped_tensor
 
-            self.values = torch.nn.Parameter(self.w.values.to(device="cuda:0").half())
-            self.columns = self.w.columns.to(device="cuda:0")
-            self.metadata = self.w.metadata.to(device="cuda:0")
+            self.values = torch.nn.Parameter(self.compressed_weights.values.to(device="cuda:0").half())
+            self.values.requires_grad = True
+            self.columns = self.compressed_weights.columns.to(device="cuda:0")
+            self.metadata = self.compressed_weights.metadata.to(device="cuda:0")
         elif isinstance(original, VenomMaskedLinear):
-            self.w = original.w
+            self.compressed_weights = original.w
             self.values = original.values.to(device="cuda:0")
             self.columns = original.columns.to(device="cuda:0")
             self.metadata = original.metadata.to(device="cuda:0")
 
         self.bias = original.bias
 
-        #self.dense = torch.nn.Parameter(self.w.to_dense())
-        self.mask = self.w.mask
+        self.dense = torch.nn.Parameter(self.compressed_weights.to_dense().to(device="cuda:0").half())
+        self.mask = self.compressed_weights.mask
 
-        self.nrows_sp = self.w.nrows
-        self.ncols_sp = self.w.ncols
-        self.nnz      = self.w.nnz
+        self.nrows_sp = self.compressed_weights.nrows
+        self.ncols_sp = self.compressed_weights.ncols
+        self.nnz      = self.compressed_weights.nnz
+        
+        self.v = v
+        self.n = n
+        self.m = m
 
     def forward(self, input):
-        
-        return VenomSparseLinearFunction.apply(input, self.w, self.bias)
+
+        return VenomSparseLinearFunction.apply(input, self.values, self.bias, self.columns, self.metadata, self.dense, self.v, self.n, self.m, self.nnz)
 
     def clear_grads(self):
         #self.dense.grad = None
         self.bias.grad = None
 
+
+############################### Clases da integración de roberto ##########################
+
+class VenomLinearFunction(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input, values, bias, columns, metadata, dense):
+        ctx.save_for_backward(input, values, bias, columns, metadata, dense)
+
+        flattened_input = torch.flatten(input, start_dim=0, end_dim=-2)
+
+        ncols_d  = flattened_input.T.shape[1]
+        DM, _    = flattened_input.shape
+
+        nrows_sp, ncols_sp = dense.shape
+
+        output = sparse_dense_mul_dispatch( values,
+                                            columns,
+                                            metadata,
+                                            flattened_input.T,
+                                            nrows_sp,
+                                            ncols_sp,
+                                            ncols_d,
+                                            m,
+                                            n,
+                                            v,
+                                            0,
+                                            bias)
+
+        output = output.reshape((*input.shape[0:-1], -1))[..., :nrows_sp]
+
+        return output
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        input, values, bias, columns, metadata, dense = ctx.saved_tensors
+
+        nrows_sp, ncols_sp = dense.shape
+
+        grad_input = grad_weight = grad_bias = None
+
+        if ctx.needs_input_grad[0]:
+            grad_input = grad_output @ dense
+
+        if ctx.needs_input_grad[1]:
+            flattened_grad_output = torch.flatten(grad_output, start_dim=0, end_dim=-2)
+            grad_output_ = flattened_grad_output.T.contiguous()
+            flattened_input = torch.flatten(input, start_dim=0, end_dim=-2)
+            input_ = flattened_input.T.contiguous()
+
+            #print(grad_output_.shape, input_.shape)
+
+            grad_weight = spatha_sddmm.sddmm(
+                                            grad_output_,
+                                            input_,
+                                            metadata,
+                                            columns,
+                                            nrows_sp,
+                                            ncols_sp,
+                                            input_.shape[1],
+                                            n,
+                                            m,
+                                            0,
+                                            0,
+                                            32,
+                                            4)
+
+        if bias is not None and ctx.needs_input_grad[2]:
+            grad_bias = grad_output.sum(0)
+
+        return grad_input, grad_weight.flatten(), grad_bias, None, None, None
+
+
+class SrnmSpmm(torch.nn.Module):
+    def __init__(self, original: torch.nn.Linear):
+        super(SrnmSpmm, self).__init__()
+
+        w = NMVectorSparsifier(n, m, v)(original.weight).wrapped_tensor
+
+        self.values = torch.nn.Parameter(w.values.to(device="cuda:0").half())
+        self.columns = w.columns.to(device="cuda:0")
+        self.metadata = w.metadata.to(device="cuda:0")
+
+        self.bias = original.bias
+
+        self.dense = torch.nn.Parameter(w.to_dense())
+        #self.mask = self.w.mask
+
+    def forward(self, input):
+        return VenomLinearFunction.apply(
+                                        input,
+                                        self.values,
+                                        self.bias,
+                                        self.columns,
+                                        self.metadata,
+                                        self.dense)
+
+############################### Clases da integración de roberto ##########################
 
 
 def main():
@@ -758,16 +514,17 @@ def main():
     torch.set_printoptions(precision=2)
     global_grad_output = None
 
+    #input_shape = [16384, 4096]
+    #layer_shape = [4096, 8192]
+    input_shape = [256, 64]
+    layer_shape = [64, 128]
 
     # Define input and standard dense computation of compatible size.
-    input = torch.randn(256, 64, requires_grad=True, dtype=torch.half, device="cuda:0")
-    dense_linear_layer = torch.nn.Linear(64, 128, bias=True, dtype=torch.half, device="cuda:0")
+    input = torch.randn(input_shape[0], input_shape[1], requires_grad=True, dtype=torch.half, device="cuda:0")
+    dense_linear_layer = torch.nn.Linear(layer_shape[0], layer_shape[1], bias=True, dtype=torch.half, device="cuda:0")
     
 
-    # Set VENOM parameters
-    v=32
-    n=2
-    m=8
+
 
     # Create a module that uses dense algebra with masked tensors.
     masked_dense_layer = VenomMaskedLinear(dense_linear_layer, v, n, m)
@@ -779,6 +536,7 @@ def main():
     torch_linear_layer_with_masked_weights.bias = torch.nn.Parameter(masked_dense_layer.bias.detach().clone())
     # Create sparse linear module, copying the weights from the masked one to ensure the same computations
     sparse_layer = VenomSparseLinear(masked_dense_layer, v, n, m)
+    #sparse_layer = SrnmSpmm(dense_linear_layer)
 
 
     # Compute modules result. 
@@ -814,14 +572,14 @@ def main():
     torch_linear_layer_with_masked_weights.weight.grad = None
     torch_linear_layer_with_masked_weights.bias.grad = None
     masked_dense_layer.clear_grads()
-    sparse_layer.clear_grads
+    #sparse_layer.clear_grads
     
     print("Testing reference backwards...")
     # Calculate loss and run backwards on reference result.
     reference_result_dense_with_masked_weights.sum().backward(retain_graph=True)
     
     reference_input_grad = input.grad.detach().clone()
-    reference_weight_grad = torch_linear_layer_with_masked_weights.weight.detach().clone()
+    reference_weight_grad = torch_linear_layer_with_masked_weights.weight.grad.detach().clone()
     #print("reference_input_grad shape:", reference_input_grad.shape)
     #print("reference_weight_grad shape:", reference_weight_grad.shape)
     
@@ -853,28 +611,54 @@ def main():
     
     
     # Check gradients using sparse operation.
-    print("Testing sparse backwards...")
+    #print("Testing sparse backwards...")
     # Clear input gradient to not accumulate the gradients of each module.
     input.grad = None
     # Calculate loss and run backwards on sparse result.
-    """
+    
     sparse_result.sum().backward(retain_graph=True)
     sparse_input_grad = input.grad.detach().clone()
-    sparse_weight_grad = torch_linear_layer_with_masked_weights.weight.grad.detach().clone()
+    #print("backwards completed")
+    #sparse_weight_grad = torch_linear_layer_with_masked_weights.weight.grad.detach().clone()
+    sparse_weight_grad = sparse_layer.values.grad.detach().clone()
+    #print("weight grad extracted.")
+    # Build a new VenomTensor to densify compressed gradients    n_, m_, v_, dense_, mask_, columns_, device_):
+    #densified_weights_grad = SparseVNMTensor(n, m, v, 
+    #                                         sparse_layer.compressed_weights.device,
+    #                                         sparse_layer.dense.detach().clone(), 
+    #                                         sparse_layer.mask.detach().clone(), 
+    #                                         sparse_layer.columns.detach().clone(), 
+    #                                         sparse_layer.compressed_weights.device)
+    venom_compressed_weights_grad = SparseVNMTensor(n, m, v, 
+                                             sparse_layer.compressed_weights.device,
+                                             mask = sparse_layer.mask.detach().clone(),
+                                             values = sparse_weight_grad, 
+                                             columns = sparse_layer.columns.detach().clone(), 
+                                             metadata = sparse_layer.metadata.detach().clone())
+    #print("New sparse tensor created")
+    #venom_compressed_weights_grad.values = sparse_weight_grad
+    #print("Densifying")
+    densified_weights_grad = venom_compressed_weights_grad.to_dense()
+    #venom_compressed_weights_grad.dense = venom_compressed_weights_grad.to_dense()
     
     # Check masked and sparse gradients are close
     masked_close_to_sparse_input_grad = torch.allclose(masked_dense_input_grad, sparse_input_grad)
     #print("Are input gradients close between reference and masked dense?:", reference_close_to_masked_input_grad)
-    masked_close_to_sparse_weight_grad = torch.allclose(masked_dense_weight_grad, sparse_weight_grad)
+    masked_close_to_sparse_weight_grad = torch.allclose(masked_dense_weight_grad, densified_weights_grad)
     print("Are gradients close between masked and sparse? Input:", masked_close_to_sparse_input_grad, 
           " weights:", masked_close_to_sparse_weight_grad)
+    if not masked_close_to_sparse_input_grad:
+        print("Reference input grad:\n", masked_dense_input_grad[:8, :8])
+        print("Masked input grad:\n", sparse_input_grad[:8, :8])
+    if not masked_close_to_sparse_weight_grad:
+        print("Reference weight grad:\n", masked_dense_weight_grad[:8, :8])
+        print("Masked weight grad:\n", densified_weights_grad[:8, :8])
     
-    """
     
     
     
     # Measure performance
-    num_repeats = 100
+    num_repeats = 10
     number=1
     
     aggregated_reference_forward_time = 0
@@ -890,32 +674,41 @@ def main():
     sparse_result = sparse_layer(input)
     
     # Dense using masked weights times
+    print("\nTimes for forward and backwards passes: 0,cfg,v,mean,median,std,len")
+    print("Dense, torch linear layer with masked weights forward times  ", end="")
     timeit.repeat('reference_output = torch_linear_layer_with_masked_weights(input)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('reference_output = torch_linear_layer_with_masked_weights(input)', repeat=num_repeats, number=number, globals=locals())
-    report_time('dense-forward', dense_times, number, v, n, m)
+    dense_times_forward = timeit.repeat('reference_output = torch_linear_layer_with_masked_weights(input)', repeat=num_repeats, number=number, globals=locals())
+    report_time('dense-forward', dense_times_forward, number, v, n, m)
     
     # Custom layer using masked weights
+    print("Masked using dense algebra, forward times                    ", end="")
     timeit.repeat('masked_output = masked_dense_layer(input)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('masked_output = masked_dense_layer(input)', repeat=num_repeats, number=number, globals=locals())
-    report_time('masked-forward', dense_times, number, v, n, m)
+    masked_times_forward = timeit.repeat('masked_output = masked_dense_layer(input)', repeat=num_repeats, number=number, globals=locals())
+    report_time('masked-forward', masked_times_forward, number, v, n, m)
     
     # Sparse layer.
+    print("Sparse forward times                                         ", end="")
     timeit.repeat('sparse_output = sparse_layer(input)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('sparse_output = sparse_layer(input)', repeat=num_repeats, number=number, globals=locals())
-    report_time('sparse-forward', dense_times, number, v, n, m)
+    sparse_times_forward = timeit.repeat('sparse_output = sparse_layer(input)', repeat=num_repeats, number=number, globals=locals())
+    report_time('sparse-forward', sparse_times_forward, number, v, n, m)
 
+    
     # Measure backwards time
+    print("Backwards pass")
+    print("Dense, torch linear layer with masked weights backward times ", end="")
     timeit.repeat('reference_result_dense_with_masked_weights.sum().backward(retain_graph=True)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('reference_result_dense_with_masked_weights.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
-    report_time('dense-backward', dense_times, number, v, n, m)
+    dense_times_backward = timeit.repeat('reference_result_dense_with_masked_weights.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
+    report_time('dense-backward', dense_times_backward, number, v, n, m)
     
+    print("Masked using dense algebra, backward times                   ", end="")
     timeit.repeat('masked_dense_result.sum().backward(retain_graph=True)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('masked_dense_result.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
-    report_time('masked-backward', dense_times, number, v, n, m)
+    masked_times_backward = timeit.repeat('masked_dense_result.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
+    report_time('masked-backward', masked_times_backward, number, v, n, m)
     
+    print("Sparse backward times                                        ", end="")
     timeit.repeat('sparse_result.sum().backward(retain_graph=True)', repeat=10, number=number, globals=locals())
-    dense_times = timeit.repeat('sparse_result.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
-    report_time('sparse-backward', dense_times, number, v, n, m)
+    sparse_times_backward = timeit.repeat('sparse_result.sum().backward(retain_graph=True)', repeat=num_repeats, number=number, globals=locals())
+    report_time('sparse-backward', sparse_times_backward, number, v, n, m)
     
 
 if __name__ == "__main__":

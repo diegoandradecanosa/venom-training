@@ -18,4 +18,13 @@ struct Swizzle8BWiseXor {
     }
 };
 
+struct Swizzle16BWiseXor {
+    DEVICE_INLINE
+    int operator()(int offset) {
+        return (offset ^
+                ((offset & (7<<7))>>4));
+    }
+};
+
+
 }
