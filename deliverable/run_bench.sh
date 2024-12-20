@@ -1,7 +1,7 @@
 #! /bin/bash
 
 mkdir -p result
-log_file=result/bench.csv
+log_file=result/bench2.csv
 
 echo "algo,n,m,v,mean,median,std,len" > $log_file
 

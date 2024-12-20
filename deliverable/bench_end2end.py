@@ -273,8 +273,9 @@ def transformer_encoder_layer_prototype(num_repeats, number):
         with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True, with_stack=True) as prof:
         #with profile(activities=[ProfilerActivity.CUDA], record_shapes=True, with_stack=True) as prof:
             with record_function("model_inference"):
-                output = sparse_model(input)
-                output.sum().backward()
+                output = sparse_model(input, labels=labels)
+                loss = output.loss
+                loss.backward()
         prof.export_stacks("/tmp/profiler_stacks.txt", "self_cuda_time_total")
         prof.export_chrome_trace("trace_sparse.json")
         print(prof.key_averages().table(sort_by="self_cuda_time_total", row_limit=15))

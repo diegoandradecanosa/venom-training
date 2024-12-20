@@ -259,10 +259,10 @@ def compare_linear_weights(sparse_model, reference_model):
         #print("Testing module", name, "of type", type(m))
         # Get same named module from reference_model
         if isinstance(m, SrnmSpmm):
-            print("SrnmSpmm module found: ", name)
+            #print("SrnmSpmm module found: ", name)
             if name in reference_model_names:
                 # Children with same name in both models, compare weights
-                print("Found matching module in reference model.")
+                #print("Found matching module in reference model.")
                 try:
                     reference_model_module = get_module_by_name(reference_model, name)
                     print("Module:",name, "\nAllclose?" , torch.allclose(m.dense, reference_model_module.weight, atol=0.005))
@@ -270,19 +270,21 @@ def compare_linear_weights(sparse_model, reference_model):
                     print("Error: Cannot load named child from module")
         elif m is not sparse_model:
             # Recursive call, compare respective parts of the models.
-            print("Recursive call")
+            #print("Recursive call")
             try:
                 reference_model_module = get_module_by_name(reference_model, name)
                 compare_linear_weights(m, reference_model_module)
             except AttributeError:
                 print("Error: Cannot load named child from module")
             
-    
+# Function to register as a hook 
+def hook_fn(module, input, output): 
+    print("Input shape:", input[0].shape, "weights shape:", module.weight.shape, "output shape:", output.shape)
 
 
 def transformer_encoder_layer_prototype(num_repeats, number):
-    #model_name = "bert-large-uncased"
-    model_name = "bert-base-uncased"
+    model_name = "bert-large-uncased"
+    #model_name = "bert-base-uncased"
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2)
     reference_model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device='cuda:0').half()
 
@@ -296,6 +298,14 @@ def transformer_encoder_layer_prototype(num_repeats, number):
             and "encoder.layer" in module_name
         )
     ]
+    
+    # Print shapes of weights_to_sparsify
+    #for module in weights_to_sparsify:
+    #    print(module.weight.shape)
+    
+    
+    
+    
     #print(weights_to_sparsify)
     model = model.to(device='cuda:0').half()
     reference_model = reference_model.to(device='cuda:0').half()
@@ -307,6 +317,21 @@ def transformer_encoder_layer_prototype(num_repeats, number):
     labels = torch.randint(low=0, high=2, size=(bs,)).to(device='cuda:0')  # Random labels for the batch
 
     torch.set_grad_enabled(True)
+    
+    # Register a hook on the forward pass of all linear modules in the reference model, stored in weights_to_sparsify
+    hooks = []
+    #reference_linear_modules = [
+    #    module 
+    #    for module_name, module in reference_model.named_modules()
+    #    if (
+    #        isinstance(module, torch.nn.modules.linear.Linear)
+    #        and "encoder.layer" in module_name
+    #    )
+    #]
+    for module_name, module in reference_model.named_modules():
+        if (isinstance(module, torch.nn.modules.linear.Linear) and "encoder.layer" in module_name):
+            hook = module.register_forward_hook(hook_fn)
+            hooks.append(hook)
 
     sparse_model.train()
     reference_model.train()
