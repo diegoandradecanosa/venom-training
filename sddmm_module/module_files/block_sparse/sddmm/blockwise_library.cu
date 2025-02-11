@@ -45,8 +45,8 @@ type##ExecFn_t NAME_FUNC(type, Exec, BM, BLOCK_N, BLOCK_K, WARP_M, WARP_N, WARP_
     = type##ExecFn<ShapeBase<BM, BLOCK_N, BLOCK_K>, ShapeBase<WARP_M, WARP_N, WARP_K>, ShapeBase<MMA_M, MMA_N, MMA_K>, NSTAGE>;
 
 
-INSTANTIATE_FUNC(SddmmNM, 32, 32, 32, 32, 32, 32, 16, 16, 16, 2);
-/*INSTANTIATE_FUNC(SddmmNM, 32, 32, 32, 32, 32, 32, 16, 16, 16, 3);
+INSTANTIATE_FUNC(SddmmNM, 32, 32, 32, 32, 32, 32, 16, 16, 16, 2); // Default
+INSTANTIATE_FUNC(SddmmNM, 32, 32, 32, 32, 32, 32, 16, 16, 16, 3);
 INSTANTIATE_FUNC(SddmmNM, 32, 32, 32, 32, 32, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 32, 32, 16, 16, 16, 2);
@@ -55,7 +55,7 @@ INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 32, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 64, 32, 16, 16, 16, 2);
 INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 32, 64, 32, 32, 64, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 32, 32, 32, 16, 16, 16, 2);
 INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 32, 32, 32, 16, 16, 16, 3);
@@ -63,96 +63,97 @@ INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 32, 32, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 32, 32, 16, 16, 16, 2);
 INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 32, 64, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 64, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 64, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 64, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 64, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 64, 32, 32, 64, 32, 32, 16, 16, 16, 4);
 
 INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 64, 64, 32, 64, 64, 32, 16, 16, 16, 4);
 
-// **
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 4);
-*/
+
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 32, 32, 32, 16, 16, 16, 4);
+
 
 INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 64, 32, 32, 16, 16, 16, 2);
-/*
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 64, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 64, 32, 32, 16, 16, 16, 4);
 
-// **
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 64, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 64, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 32, 32, 16, 16, 16, 4);
 
-// **
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 32, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 32, 32, 16, 16, 16, 4);
 
-// **
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 64, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 32, 32, 128, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 32, 32, 16, 16, 16, 4);
 
-// **
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 64, 32, 128, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 32, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 32, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 4);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 64, 32, 16, 16, 16, 4);
 
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 2);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 3);
-INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 4);
-*/
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 64, 128, 32, 16, 16, 16, 4);
 
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 2);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 3);
+//INSTANTIATE_FUNC(SddmmNM, 128, 128, 32, 128, 128, 32, 16, 16, 16, 4);
+
+
+
+
+/**
+ * Default kernel parameters. 32,32,32 32,32,32 16,16,16 2
+ */
 torch::Tensor sddmm_cuda(torch::Tensor A_matrix,
                          torch::Tensor B_matrix,
                          torch::Tensor C_metadata,
@@ -220,4 +221,888 @@ torch::Tensor sddmm_cuda(torch::Tensor A_matrix,
 }
 
 
+/**
+ * Common part for all sddmm_cuda calls, receives a SddmmBlockwiseOp with the tiling parameters.
+ */
+/*
+torch::Tensor sddmm_cuda_run(SddmmBlockwiseOp* op_pointer,
+    torch::Tensor A_matrix,
+    torch::Tensor B_matrix,
+    torch::Tensor C_metadata,
+    torch::Tensor C_indices,
+    int C_num_rows,
+    int C_num_cols,
+    int A_num_cols,
+    int n,
+    int m,
+    int nnz,
+    int seed,
+    int mbrow,
+    int brow)
+{
+
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op_pointer->initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op_pointer();
+
+    return output_matrix;
+
 }
+*/
+
+/*
+ * 32, 32, 32, 32, 32, 32, 16, 16, 16, 2
+ * Default configuration.
+ */
+torch::Tensor sddmm_cuda_32x32x32_32x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(&op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 32, 32, 32, 32, 32, 32, 16, 16, 16, 4
+ */
+torch::Tensor sddmm_cuda_32x32x32_32x32x32_16x16x16_4(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    4>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 32, 64, 32, 32, 32, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_32x64x32_32x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 64, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 32, 64, 32, 32, 32, 32, 16, 16, 16, 3
+ */
+torch::Tensor sddmm_cuda_32x64x32_32x32x32_16x16x16_3(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 64, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    3>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 64, 32, 32, 32, 32, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_64x32x32_32x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 64, 32, 32, 32, 32, 32, 16, 16, 16, 3
+ */
+torch::Tensor sddmm_cuda_64x32x32_32x32x32_16x16x16_3(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    3>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 64, 64, 32, 32, 32, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_64x64x32_32x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 64, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+    //return sddmm_cuda_run(op, A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, A_num_cols, n, m, nnz, seed, mbrow, brow);
+}
+
+
+
+/*
+ * 64, 64, 32, 32, 32, 32, 16, 16, 16, 3
+ */
+torch::Tensor sddmm_cuda_64x64x32_32x32x32_16x16x16_3(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 64, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    3>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+
+
+/*
+ * 32, 32, 32, 32, 32, 32, 16, 16, 16, 3
+ */
+torch::Tensor sddmm_cuda_32x32x32_32x32x32_16x16x16_3(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    3>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+/*
+ * 64, 64, 32, 64, 32, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_64x64x32_64x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 64, 32>,
+                    ShapeBase<64, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+/*
+ * 64, 32, 32, 32, 32, 32, 16, 16, 16, 4
+ */
+torch::Tensor sddmm_cuda_64x32x32_32x32x32_16x16x16_4(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 32, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    4>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+/*
+ * 64, 32, 32, 64, 32, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_64x32x32_64x32x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<64, 32, 32>,
+                    ShapeBase<64, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+/*
+ * 32, 64, 32, 32, 32, 32, 16, 16, 16, 4
+ */
+torch::Tensor sddmm_cuda_32x64x32_32x32x32_16x16x16_4(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 64, 32>,
+                    ShapeBase<32, 32, 32>,
+                    ShapeBase<16, 16, 16>,
+                    4>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+/*
+ * 32, 64, 32, 32, 64, 32, 16, 16, 16, 2
+ */
+torch::Tensor sddmm_cuda_32x64x32_32x64x32_16x16x16_2(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 64, 32>,
+                    ShapeBase<32, 64, 32>,
+                    ShapeBase<16, 16, 16>,
+                    2>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+
+
+/*
+ * 32, 64, 32, 32, 64, 32, 16, 16, 16, 3
+ */
+torch::Tensor sddmm_cuda_32x64x32_32x64x32_16x16x16_3(torch::Tensor A_matrix,
+                         torch::Tensor B_matrix,
+                         torch::Tensor C_metadata,
+                         torch::Tensor C_indices,
+                         int C_num_rows,
+                         int C_num_cols,
+                         int A_num_cols,
+                         int n,
+                         int m,
+                         int nnz,
+                         int seed,
+                         int mbrow,
+                         int brow)
+{
+    SddmmBlockwiseOp<ShapeBase<32, 64, 32>,
+                    ShapeBase<32, 64, 32>,
+                    ShapeBase<16, 16, 16>,
+                    3>
+                    op;
+    auto options = torch::TensorOptions().dtype(torch::kFloat16).device(B_matrix.device());
+
+    auto output_matrix = torch::empty({C_num_rows, C_num_cols/m*n}, options);
+
+    BlockwiseSpTensor<half> spmat;
+    spmat.init_sparse_device(C_num_rows,
+                             C_num_cols,
+                             brow,
+                             n,
+                             m,
+                             nnz,
+                             reinterpret_cast<int *>(C_metadata.data_ptr<int>()),
+                             reinterpret_cast<half *>(output_matrix.data_ptr<torch::Half>()),
+                             reinterpret_cast<int *>(C_indices.data_ptr<int>()),
+                             seed,
+                             mbrow,
+                             128);
+
+
+    op.initialize(
+        spmat,
+        A_num_cols,
+        reinterpret_cast<half *>(A_matrix.data_ptr<torch::Half>()),
+        reinterpret_cast<half *>(B_matrix.data_ptr<torch::Half>())
+    );
+
+    op();
+
+    return output_matrix;
+}
+
+
+
+}
+

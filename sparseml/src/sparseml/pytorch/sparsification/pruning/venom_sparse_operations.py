@@ -40,6 +40,117 @@ __all__ = [
 ]
 
 
+# Define the sddmm configuration mapping to venom formats and matrix sizes. Stores the index of the relevant configuration.
+# -1 Default: 64,32,32-64,32,32-16,16,16 2
+# 0: 32,64,32-32,32,32-16,16,16 2 -> 32, 64, 32, 32, 32, 32, 16, 16, 16, 2
+# 1: 32,64,32-32,32,32-16,16,16 3 -> 32, 64, 32, 32, 32, 32, 16, 16, 16, 3
+# 2: 32,32,32-32,32,32-16,16,16 4 -> 32, 32, 32, 32, 32, 32, 16, 16, 16, 4
+# 3: 64,64,32-32,32,32-16,16,16 2 -> 64, 64, 32, 32, 32, 32, 16, 16, 16, 2
+# 4: 64,64,32-32,32,32-16,16,16 3 -> 64, 64, 32, 32, 32, 32, 16, 16, 16, 3
+# 5: 64,32,32-32,32,32-16,16,16 3 -> 64, 32, 32, 32, 32, 32, 16, 16, 16, 2
+# 6: 64,32,32-32,32,32-16,16,16 2 -> 64, 32, 32, 32, 32, 32, 16, 16, 16, 3
+# 7: 32,32,32-32,32,32-16,16,16 3 -> 32, 32, 32, 32, 32, 32, 16, 16, 16, 3
+# 8: 64,64,32-64,32,32-16,16,16 2 -> 64, 64, 32, 64, 32, 32, 16, 16, 16, 2
+# 9: 64,32,32-32,32,32-16,16,16 4 -> 64, 32, 32, 32, 32, 32, 16, 16, 16, 4
+#10: 64,32,32-64,32,32-16,16,16 2 -> 64, 32, 32, 64, 32, 32, 16, 16, 16, 2
+#11: 32,64,32-32,32,32-16,16,16 4 -> 32, 64, 32, 32, 32, 32, 16, 16, 16, 4
+#12: 32,64,32-32,64,32-16,16,16 2 -> 32, 64, 32, 32, 64, 32, 16, 16, 16, 2
+#13: 32,64,32-32,64,32-16,16,16 3 -> 32, 64, 32, 32, 64, 32, 16, 16, 16, 3
+
+# New configurations:
+# 32, 32, 32, 32, 32, 32, 16, 16, 16, 3
+# 64, 64, 32, 64, 32, 32, 16, 16, 16, 2
+# 64, 32, 32, 32, 32, 32, 16, 16, 16, 4
+# 64, 32, 32, 64, 32, 32, 16, 16, 16, 2
+
+
+venom_configuration_mapping = {
+    "64:2:4":{
+        "3072x1024*1024x1024":-1,   # Best is 1
+        "3072x1024*1024x4096":-1,   # Best is -1
+        "3072x4096*4096x1024":-1,   # Best is -1
+        "1024x6144*6144x1024":3,   # 1 best, other better configurations cause errors
+        "1024x6144*6144x4096":-1,   # 1 best 11
+        "4096x6144*6144x1024":-1,   # 0 best 13
+            
+    },
+    "64:2:8":{
+        "3072x1024*1024x1024":-1,   # Best is 1
+        "3072x1024*1024x4096":-1,   # Best is 1
+        "3072x4096*4096x1024":-1,   # Best is 0
+        "1024x6144*6144x1024":-1,   # Other better configurations cause errors
+        "1024x6144*6144x4096":-1,   # Other better configurations cause errors
+        "4096x6144*6144x1024":-1,   # Other better configurations cause errors
+    },
+    "64:2:10":{
+        "3072x1024*1024x1024":-1,   # Best is -1
+        "3072x1024*1024x4096":-1,   # Best is 1
+        "3072x4096*4096x1024":-1,   # Best is -1
+        "1024x6144*6144x1024":-1,   # Best is 7
+        "1024x6144*6144x4096":-1,   # Best is 7
+        "4096x6144*6144x1024":-1,   # Best is 0
+    },
+    "64:2:12":{
+        "3072x1024*1024x1024":-1,   # Best is 2
+        "3072x1024*1024x4096":-1,   # Best is 1
+        "3072x4096*4096x1024":-1,   # Best is -1
+        "1024x6144*6144x1024":-1,   # Best is 2
+        "1024x6144*6144x4096":-1,   # Best is 0
+        "4096x6144*6144x1024":-1,   # Best is -1
+    },
+    "64:2:16":{
+        "3072x1024*1024x1024":-1,   # Best is 0
+        "3072x1024*1024x4096":-1,   # Best is 1
+        "3072x4096*4096x1024":-1,   # Best is 0
+        "1024x6144*6144x1024":-1,   # Best is 2
+        "1024x6144*6144x4096":-1,   # Best is 1
+        "4096x6144*6144x1024":-1,   # Best is 1
+    },
+    "128:2:4":{
+        "3072x1024*1024x1024":-1,   # Best is 4
+        "3072x1024*1024x4096":-1,   # Best is 3
+        "3072x4096*4096x1024":-1,   # Best is 3
+        "1024x6144*6144x1024":-1,   # Best is 8
+        "1024x6144*6144x4096":-1,   # Best is 3
+        "4096x6144*6144x1024":-1,   # Best is 3
+    },
+    "128:2:8":{
+        "3072x1024*1024x1024":-1,   # Best is 4
+        "3072x1024*1024x4096":-1,   # Best is 3
+        "3072x4096*4096x1024":-1,   # Best is 3
+        "1024x6144*6144x1024":-1,   # Best is 1
+        "1024x6144*6144x4096":-1,   # Best is 3
+        "4096x6144*6144x1024":-1,   # Best is 3
+    },
+    "128:2:10":{
+        "3072x1024*1024x1024":-1,   # Best is 5
+        "3072x1024*1024x4096":-1,   # Best is 3
+        "3072x4096*4096x1024":-1,   # Best is 5
+        "1024x6144*6144x1024":-1,   # Best is 6
+        "1024x6144*6144x4096":-1,   # Best is 4
+        "4096x6144*6144x1024":-1,   # Best is 6
+    },
+    "128:2:12":{
+        "3072x1024*1024x1024":-1,   # Best is 5
+        "3072x1024*1024x4096":-1,   # Best is 3
+        "3072x4096*4096x1024":-1,   # Best is 5
+        "1024x6144*6144x1024":-1,   # Best is 2
+        "1024x6144*6144x4096":-1,   # Best is 9
+        "4096x6144*6144x1024":-1,   # Best is 10
+    },
+    "128:2:16":{
+        "3072x1024*1024x1024":-1,   # Best is 6
+        "3072x1024*1024x4096":-1,   # Best is 4
+        "3072x4096*4096x1024":-1,   # Best is 4
+        "1024x6144*6144x1024":-1,   # Best is 9
+        "1024x6144*6144x4096":-1,   # Best is 8
+        "4096x6144*6144x1024":-1,   # Best is 3
+    }
+}
+
+unique_matrix_sizes=[]
+
+
 
 class FixedMaskTensor:
     def __init__(self, val, mask, n, m, v):
@@ -519,12 +630,310 @@ class SparseVNMTensor:
         #print("values device:", local_values.device, "columns device:", local_columns.device, "metadata device:", local_metadata.device)
         func(dense.data_ptr(), local_values.data_ptr(), local_columns.data_ptr(), local_metadata.data_ptr())
 
-        return dense.to(device="cuda:0").half()
+        return dense.cuda().half()
 
 
+def sddmm_dispatch(A_matrix, B_matrix, C_metadata, C_indices, C_num_rows, C_num_cols, venom_v, venom_n, venom_m, nnz, debug=False):
 
+            
+    
+    # Get which configuration should be used for this invocation, using V:N:M format and matrix sizes
+    venom_format = str(venom_v)+":"+str(venom_n)+":"+str(venom_m)
+    matrix_sizes = str(A_matrix.shape[0])+"x"+str(A_matrix.shape[1])+"*"+str(B_matrix.shape[1])+"x"+str(B_matrix.shape[0])
+    #print("Matrix sizes: ", A_matrix.shape, "x", B_matrix.shape, "->", matrix_sizes)
+    
 
+    #if matrix_sizes not in unique_matrix_sizes:
+    #    unique_matrix_sizes.append(matrix_sizes)
+    #    print("")
 
+    #venom_config = -1 # Default configuration.
+    try:
+        if debug: print("Venom kernel parameters search: ", venom_format , " - ", matrix_sizes, sep="")
+        venom_config = venom_configuration_mapping[venom_format][matrix_sizes]
+    except KeyError:
+        venom_config = -1 # Default configuration.
+
+    match venom_config:
+        case 0:
+            if debug: print("Case 0: sddmm_32x64x32_32x32x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_32x64x32_32x32x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 1:
+            if debug: print("Case 1: sddmm_32x64x32_32x32x32_16x16x16_3 call")
+            return spatha_sddmm.sddmm_32x64x32_32x32x32_16x16x16_3(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 2:
+            if debug: print("Case 2: sddmm_32x32x32_32x32x32_16x16x16_4 call")
+            return spatha_sddmm.sddmm_32x32x32_32x32x32_16x16x16_4(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 3:
+            if debug: print("Case 3: sddmm_64x64x32_32x32x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_64x64x32_32x32x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 4:
+            if debug: print("Case 4: sddmm_64x64x32_32x32x32_16x16x16_3 call")
+            return spatha_sddmm.sddmm_64x64x32_32x32x32_16x16x16_3(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 5:
+            if debug: print("Case 5: sddmm_64x32x32_32x32x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_64x32x32_32x32x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+
+        case 6:
+            if debug: print("Case 6: sddmm_64x32x32_32x32x32_16x16x16_3 call")
+            return spatha_sddmm.sddmm_64x32x32_32x32x32_16x16x16_3(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+        case 7:
+            #32,32,32-32,32,32-16,16,16 3
+            if debug: print("Case 7: sddmm_32x32x32_32x32x32_16x16x16_3 call")
+            # default execution or not recognized
+            return spatha_sddmm.sddmm_32x32x32_32x32x32_16x16x16_3(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+        case 8:
+            # 64,64,32-64,32,32-16,16,16 2
+            if debug: print("Case 8: sddmm_64x64x32_64x32x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_64x64x32_64x32x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+        case 9:
+            #64,32,32-32,32,32-16,16,16 4
+            if debug: print("Case 9: sddmm_64x32x32_32x32x32_16x16x16_4 call")
+            return spatha_sddmm.sddmm_64x32x32_32x32x32_16x16x16_4(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+        
+        case 10:
+            # 64,32,32-64,32,32-16,16,16 2
+            if debug: print("Case 10: sddmm_64x32x32_64x32x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_64x32x32_64x32x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+        
+        case 11:
+            # 32,64,32-32,32,32-16,16,16 4
+            if debug: print("Case 11: sddmm_32x64x32_32x32x32_16x16x16_4 call")
+            return spatha_sddmm.sddmm_32x64x32_32x32x32_16x16x16_4(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+        case 12:
+            # 32,64,32-32,64,32-16,16,16 2
+            if debug: print("Case 12: sddmm_32x64x32_32x64x32_16x16x16_2 call")
+            return spatha_sddmm.sddmm_32x64x32_32x64x32_16x16x16_2(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+        case 13:
+            # 32,64,32-32,64,32-16,16,16 3
+            if debug: print("Case 13: sddmm_32x64x32_32x64x32_16x16x16_3 call")
+            return spatha_sddmm.sddmm_32x64x32_32x64x32_16x16x16_3(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
+            
+
+        case -1 | _:
+            if debug: print("Case -1|_: Default: sddmm call")
+            # default execution or not recognized
+            return spatha_sddmm.sddmm(
+                A_matrix,                   # A_matrix
+                B_matrix,                   # B_matrix
+                C_metadata,                 # C_metadata
+                C_indices,                  # C_indices
+                C_num_rows,                 # C_num_rows
+                C_num_cols,                 # C_num_cols    
+                B_matrix.shape[1], 
+                venom_n,                    # N
+                venom_m,                    # M
+                nnz,                        # nnz
+                0,                          # seed
+                32,                         # mbrow
+                4                           # brow
+                )
 
 
 #def sddmm_dispatch(lhs_matrix, rhs_matrix, A_metadata, A_values, A_indices, A_num_rows, A_num_cols, B_num_cols, v, n, m, nnz):
@@ -730,11 +1139,13 @@ class VenomSparseLinearFunction(torch.autograd.Function):
         grad_input = grad_weight = grad_bias = None
         
         if ctx.needs_input_grad[0]:
+            #print("grad_output: shape", grad_output.shape, "Dtype:", grad_output.dtype)
+            #print("weights_dense: shape", weights_dense.shape, "Dtype:", weights_dense.dtype)
             grad_input = grad_output @ weights_dense
         
         if ctx.needs_input_grad[1]: 
             #grad_weight = grad_output.t() @ input.to("cuda:0")
-            
+            #print("grad_output(A) initial shape: ", grad_output.shape, "input (B) shape:", input.shape)
             sddmm_grad_output = torch.flatten(grad_output, start_dim=0, end_dim=-2)
             sddmm_grad_output = sddmm_grad_output.T.contiguous()
             sddmm_input = torch.flatten(input, start_dim=0, end_dim=-2).half()
@@ -745,22 +1156,34 @@ class VenomSparseLinearFunction(torch.autograd.Function):
             #      "\nTypes: weights_metadata:",  type(weights_metadata), weights_metadata.dtype, 
             #      "\nTypes: weights_columns:",  type(weights_columns), weights_columns.dtype 
             #)
-            
-            compressed_grad_weights = spatha_sddmm.sddmm(
-                            sddmm_grad_output,             # A_matrix
-                            sddmm_input,                   # B_matrix
-                            weights_metadata,              # C_metadata
-                            weights_columns,               # C_indices
-                            ctx.sparse_weights_num_rows,   # C_num_rows
-                            ctx.sparse_weights_num_cols,   # C_num_cols    
-                            sddmm_input.shape[1], 
-                            ctx.n,              # N
-                            ctx.m,              # M
-                            ctx.nnz,            # nnz
-                            0,                             # seed
-                            32,                            # mbrow
-                            4                              # brow
+            compressed_grad_weights = sddmm_dispatch(
+                            sddmm_grad_output,              # A_matrix
+                            sddmm_input,                    # B_matrix
+                            weights_metadata,               # C_metadata
+                            weights_columns,                # C_indices
+                            ctx.sparse_weights_num_rows,    # C_num_rows
+                            ctx.sparse_weights_num_cols,    # C_num_cols    
+                            ctx.v,                          # VENOM V
+                            ctx.n,                          # VENOM N
+                            ctx.m,                          # VENOM M
+                            ctx.nnz,                        # nnz
                             )
+            
+            #compressed_grad_weights = spatha_sddmm.sddmm(
+            #                sddmm_grad_output,             # A_matrix
+            #                sddmm_input,                   # B_matrix
+            #                weights_metadata,              # C_metadata
+            #                weights_columns,               # C_indices
+            #                ctx.sparse_weights_num_rows,   # C_num_rows
+            #                ctx.sparse_weights_num_cols,   # C_num_cols    
+            #                sddmm_input.shape[1], 
+            #                ctx.n,              # N
+            #                ctx.m,              # M
+            #                ctx.nnz,            # nnz
+            #                0,                             # seed
+            #                32,                            # mbrow
+            #                4                              # brow
+            #                )
             grad_weight = compressed_grad_weights.flatten()
             #print("SDDMM completed: output dtype:", compressed_grad_weights.dtype)
         if bias is not None and ctx.needs_input_grad[2]:
@@ -792,19 +1215,19 @@ class VenomSparseLinear(torch.nn.Module):
             assert mask is not None
             self.compressed_weights = VENOMSparsifier(v, n, m)(weights, mask=mask).wrapped_tensor
 
-        self.values = torch.nn.Parameter(self.compressed_weights.values.to(device="cuda:0").half())
+        self.values = torch.nn.Parameter(self.compressed_weights.values.cuda().half())
         self.values.requires_grad = True
-        self.columns = self.compressed_weights.columns.to(device="cuda:0")
-        self.metadata = self.compressed_weights.metadata.to(device="cuda:0")
+        self.columns = self.compressed_weights.columns.cuda()
+        self.metadata = self.compressed_weights.metadata.cuda()
 
         # Copy bias from original if provided
         if original is not None:
-            self.bias = original.bias.to(device="cuda:0").half()
+            self.bias = original.bias.cuda().half()
         else:
             assert bias is not None
-            self.bias = bias.to(device="cuda:0")
+            self.bias = bias.cuda()
 
-        self.dense = torch.nn.Parameter(self.compressed_weights.to_dense().to(device="cuda:0").half())
+        self.dense = torch.nn.Parameter(self.compressed_weights.to_dense().cuda().half())
         self.mask = self.compressed_weights.mask
 
         self.nrows_sp = self.compressed_weights.nrows
@@ -1022,11 +1445,12 @@ def linear_to_venom_detecting_mask(mod, v:int, n:int, m:int):
         num_ones = torch.sum(mask == 1).item()
         #print("External if mask: ones:", num_ones, "zeros:", num_zeros, "Sparsity:", num_ones/(num_ones+num_zeros))
         #check_VNM(v=v, n=n, m=m, m_fixed=n+2, tensor=mask)
-        # Only replace module if mask spartisy matches intended sparsity
-        if n/m == num_ones/(num_ones+num_zeros):
-            return VenomSparseLinear(v, n, m, original=mod, mask=None)
+        # Only replace module if mask spartisy matches intended sparsity, or below 1% relative difference
+        sparsity_relative_difference = (abs((n/m)-(num_ones/(num_ones+num_zeros)))) / (n/m)
+        if sparsity_relative_difference < 0.01:
+            return VenomSparseLinear(v, n, m, original=mod, mask=mask)
         else:
-            print("Mask sparsity does not match N:M expected sparsity.")
+            print("Mask sparsity does not match N:M expected sparsity. sparsity_relative_difference:", sparsity_relative_difference)
             return mod
 
     for name, submod in mod.named_children():
@@ -1038,10 +1462,13 @@ def linear_to_venom_detecting_mask(mod, v:int, n:int, m:int):
             num_ones = torch.sum(mask == 1).item()
             #print("Internal if mask: ones:", num_ones, "zeros:", num_zeros, "Sparsity:", num_ones/(num_ones+num_zeros))
             #check_VNM(v=v, n=n, m=m, m_fixed=n+2, tensor=mask)
-            if n/m == num_ones/(num_ones+num_zeros):
-                setattr(mod, name, VenomSparseLinear(v, n, m, original=submod, mask=None))
+            # Only replace module if mask spartisy matches intended sparsity, or below 1% relative difference
+            sparsity_relative_difference = (abs((n/m)-(num_ones/(num_ones+num_zeros)))) / (n/m)
+            #print("sparsity_relative_difference:", sparsity_relative_difference)
+            if sparsity_relative_difference < 0.01:
+                setattr(mod, name, VenomSparseLinear(v, n, m, original=submod, mask=mask))
             else:
-                print("Mask sparsity does not match N:M expected sparsity.")
+                print("Mask sparsity does not match N:M expected sparsity. sparsity_relative_difference:", sparsity_relative_difference)
         elif submod is not mod:
             linear_to_venom_detecting_mask(submod, v, n, m)
 

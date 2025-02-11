@@ -1,7 +1,12 @@
 Metadata-Version: 2.1
-Name: spatha_sddmm
+Name: spatha-sddmm
 Version: 0.0.1
 Summary: Custom library for Sparse Tensor Cores
+Home-page: UNKNOWN
 Author: Roberto L. Castro
 Author-email: roberto.lopez.castro@udc.es
-Requires-Dist: torch
+License: UNKNOWN
+Platform: UNKNOWN
+
+UNKNOWN
+

@@ -135,6 +135,7 @@ class VENOMKernelReplacementPruningModifier(BasePruningModifier):
         
         print("Replacing modules in VENOMKernelReplacementPruningModifier...")
         linear_to_venom_detecting_mask(module, self._v, self._n, self._m)
+        print("Kernels replaced.")
     
     
     def is_oneshot(self, epoch: float, steps_per_epoch: int) -> bool:

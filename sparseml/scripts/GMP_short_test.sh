@@ -26,7 +26,7 @@ python $workdir/src/sparseml/transformers/question_answering.py \
   --do_eval \
   --evaluation_strategy epoch \
   --per_device_train_batch_size 16 \
-  --learning_rate 1e-5 \
+  --learning_rate 1e-8 \
   --max_seq_length 384 \
   --doc_stride 128 \
   --output_dir $workdir/integrations/huggingface-transformers/MODELS_DIR/$EXEC_ID \
@@ -38,8 +38,8 @@ python $workdir/src/sparseml/transformers/question_answering.py \
   --save_steps 1000 \
   --save_total_limit 2 \
   --recipe $RECIPE \
-  --max_train_samples 2000 \
-  --max_eval_samples 2000 
+  --max_train_samples 48 \
+  --max_eval_samples 48 
  # --report_to wandb
 
 

@@ -26,7 +26,7 @@ python $workdir/src/sparseml/transformers/question_answering.py \
   --do_eval \
   --evaluation_strategy epoch \
   --per_device_train_batch_size 16 \
-  --learning_rate 5e-4 \
+  --learning_rate 5e-6 \
   --max_seq_length 384 \
   --doc_stride 128 \
   --output_dir $workdir/integrations/huggingface-transformers/MODELS_DIR/$EXEC_ID \

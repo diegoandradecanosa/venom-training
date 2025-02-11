@@ -1,5 +1,5 @@
 
-num_epochs: &num_epochs 3
+num_epochs: &num_epochs 1
 
 init_sparsity: &init_sparsity 0.00
 final_sparsity: &final_sparsity 0.90
@@ -18,7 +18,7 @@ training_modifiers:
     start_epoch: 0
     end_epoch: *num_epochs
 
-pruning_modifiers:
+#pruning_modifiers:
   #- !GMPruningModifier
   #  params:
   #    - re:bert.encoder.layer.*.attention.self.query.weight
@@ -55,17 +55,17 @@ pruning_modifiers:
   #  global_sparsity: False
   #  mask_type: "64:2:8"
   
-  - !VENOMKernelReplacementPruningModifier
-    params:
-      - re:bert.encoder.layer.*.attention.self.query.weight
-      - re:bert.encoder.layer.*.attention.self.key.weight
-      - re:bert.encoder.layer.*.attention.self.value.weight
-      - re:bert.encoder.layer.*.attention.output.dense.weight
-      - re:bert.encoder.layer.*.intermediate.dense.weight
-      - re:bert.encoder.layer.*.output.dense.weight
-    at_epoch: 2
-    leave_enabled: True
-    mask_type: "64:2:4"
+  #- !VENOMKernelReplacementPruningModifier
+  #  params:
+  #    - re:bert.encoder.layer.*.attention.self.query.weight
+  #    - re:bert.encoder.layer.*.attention.self.key.weight
+  #    - re:bert.encoder.layer.*.attention.self.value.weight
+  #    - re:bert.encoder.layer.*.attention.output.dense.weight
+  #    - re:bert.encoder.layer.*.intermediate.dense.weight
+  #    - re:bert.encoder.layer.*.output.dense.weight
+  #  at_epoch: 2
+  #  leave_enabled: True
+  #  mask_type: "64:2:4"
 
 
 distillation_modifiers:

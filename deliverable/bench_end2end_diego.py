@@ -285,19 +285,19 @@ def hook_fn(module, input, output):
 def transformer_encoder_layer_prototype(num_repeats, number):
     model_name = "bert-large-uncased"
     #model_name = "bert-base-uncased"
-    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2)
+    #model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2)
     reference_model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device='cuda:0').half()
 
     input = torch.randint(low=0, high=100, size=(bs, 512))#, dtype=torch.half)
 
-    weights_to_sparsify = [
-        module
-        for module_name, module in model.named_modules()
-        if (
-            isinstance(module, torch.nn.modules.linear.Linear)
-            and "encoder.layer" in module_name
-        )
-    ]
+    #weights_to_sparsify = [
+    #    module
+    #    for module_name, module in model.named_modules()
+    #    if (
+    #        isinstance(module, torch.nn.modules.linear.Linear)
+    #        and "encoder.layer" in module_name
+    #    )
+    #]
     
     # Print shapes of weights_to_sparsify
     #for module in weights_to_sparsify:
@@ -307,12 +307,12 @@ def transformer_encoder_layer_prototype(num_repeats, number):
     
     
     #print(weights_to_sparsify)
-    model = model.to(device='cuda:0').half()
+    #model = model.to(device='cuda:0').half()
     reference_model = reference_model.to(device='cuda:0').half()
     input = input.to(device='cuda:0')
     reference_input = input.detach().clone()
 
-    sparse_model = linear_to_spmm(model, weights_to_sparsify)
+    #sparse_model = linear_to_spmm(model, weights_to_sparsify)
 
     labels = torch.randint(low=0, high=2, size=(bs,)).to(device='cuda:0')  # Random labels for the batch
 
@@ -333,10 +333,10 @@ def transformer_encoder_layer_prototype(num_repeats, number):
             hook = module.register_forward_hook(hook_fn)
             hooks.append(hook)
 
-    sparse_model.train()
+    #sparse_model.train()
     reference_model.train()
     #print("Starting execution")
-    output = sparse_model(input, labels=labels)
+    #output = sparse_model(input, labels=labels)
     reference_output = reference_model(reference_input, labels=labels)
     loss = output.loss
     loss.backward()
@@ -348,7 +348,7 @@ def transformer_encoder_layer_prototype(num_repeats, number):
     # Check models outputs are the same. Bert models produce SequenceClassifierOutput, not tensors, cannot compare with torch.allclose.
     #print("Model outputs are equal?:", torch.allclose(output, reference_output, atol=0.005))
     print("Comparing weights of models...")
-    compare_linear_weights(sparse_model, reference_model)
+    #compare_linear_weights(sparse_model, reference_model)
     print("Comparison complete.")
     
     #print("Warm-up executed")

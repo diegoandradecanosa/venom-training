@@ -1446,6 +1446,7 @@ class VNMPruningMaskCreator(PruningMaskCreator):
                 inp = torch.from_numpy(matrix).abs()
                 sparse = inp.clone()
                 mask = torch.zeros(tensor.shape)
+                #print("\nInput:", inp, "Shape:", inp.shape)
                 func = impl_builder(
                     inp.shape,
                     inp.dtype,
