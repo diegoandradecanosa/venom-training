@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodetypes>
+    <!-- Miscellaneous node types. Nodes that may appear in the ONNX representation but are minor operations that are performed as part of other kernels.
+         Some arquitectures use different types of these nodes, so some flexibility is desired to describe the operations performed by those kernels.
+         For the group definitions a miscellaneousNodes tag is used to indicate an undetermined sequence of these nodes is present.
+     -->
+    <miscNode name="shape"/>
+    <miscNode name="cast"/>
+    <miscNode name="slice"/>
+    <miscNode name="sqrt"/>
+    <miscNode name="div"/>
+    <miscNodea name="mul"/>
+    <!-- Nodes that should not be included in the grouped graph. Edges go from inputs to outputs directly or they only have outputs. -->
+    <hiddenOperation name="constant"/>
+    <hiddenOperationa name="sqrt"/>
+    <!-- Simple operations with only one node, no groups. -->
+    <singleOperation name="matmul" nodeName="matmul" kernelNameRegex=".*gemm.*"/>
+    <singleOperation name="div" nodeName="div" kernelNameRegex=".*vectorized_elementwise_kernel.*(?!Gelu).*"/>
+    <singleOperation name="softmax" nodeName="softmax" kernelNameRegex=".*softmax.*"/>
+    <singleOperation name="add" nodeName="add" kernelNameRegex=".*vectorized_elementwise_kernel.*(?!Gelu).*"/>
+    <!-- Operations that perform multiple nodes with the same kernel. -->
+    <OperationGroup>
+        <name>add-reshape-transpose</name>
+        <kernelNameRegex>^[^_]*(?!vectorized_)elementwise_kernel.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <node>add</node>
+                <node>reshape</node>
+                <node>transpose</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroup>
+        <name>transpose-reshape</name>
+        <kernelNameRegex>^[^_]*(?!vectorized_)elementwise_kernel.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <node>transpose</node>
+                <node>reshape</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroup>
+        <name>add-normalization</name>
+        <kernelNameRegex>.*vectorized_layer_norm_kernel.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <node>add</node>
+                <node>layernormalization</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroup>
+        <name>gelu</name>
+        <kernelNameRegex>.*vectorized_elementwise_kernel.*Gelu.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <node>add</node>
+                <branching>
+                    <sequential>
+                        <node>div</node>
+                        <node>erf</node>
+                        <node>add</node>
+                    </sequential>
+                    <emptyBranch/>
+                </branching>
+                <node>mul</node>
+                <node>mul</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroup>
+        <name>flash_attention_forward</name>
+        <kernelNameRegex>.*flash_fwd_kernel.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <branchedStart>
+                    <sequential>
+                        <branchedStart>
+                            <sequential>
+                                <node>add</node>
+                                <node>reshape</node>
+                                <node>transpose</node>
+                                <branching>
+                                    <emptyBranch/>
+                                    <sequential>
+                                        <node>shape</node>
+                                        <node>slice</node>
+                                        <node>cast</node>
+                                        <node>sqrt</node>
+                                        <node>cast</node>
+                                        <node>div</node>
+                                        <node>cast</node>
+                                        <branching>
+                                            <node>sqrt</node>
+                                            <sequential>
+                                                <node>sqrt</node>
+                                                <crossbranchjump/>
+                                            </sequential>
+                                        </branching>
+                                    </sequential>
+                                </branching>
+                                <node>mul</node>
+                            </sequential>
+                            <sequential>
+                                <node>add</node>
+                                <node>reshape</node>
+                                <node>transpose</node>
+                                <node>mul</node>
+                            </sequential>
+                        </branchedStart>
+                        <node>matmul</node>
+                        <node>softmax</node>
+                    </sequential>
+                    <sequential>
+                        <node>add</node>
+                        <node>reshape</node>
+                        <node>transpose</node>
+                    </sequential>
+                </branchedStart>
+                <node>matmul</node>
+                <node>transpose</node>
+                <node>reshape</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroup>
+        <name>flash_attention_forward_extra_add</name>
+        <kernelNameRegex>.*flash_fwd_kernel.*</kernelNameRegex>
+        <nodes>
+            <sequential>
+                <branchedStart>
+                    <sequential>
+                        <branchedStart>
+                            <sequential>
+                                <node>add</node>
+                                <node>reshape</node>
+                                <node>transpose</node>
+                                <branching>
+                                    <emptyBranch/>
+                                    <sequential>
+                                        <node>shape</node>
+                                        <node>slice</node>
+                                        <node>cast</node>
+                                        <node>sqrt</node>
+                                        <node>cast</node>
+                                        <node>div</node>
+                                        <node>cast</node>
+                                        <branching>
+                                            <node>sqrt</node>
+                                            <sequential>
+                                                <node>sqrt</node>
+                                                <crossbranchjump/>
+                                            </sequential>
+                                        </branching>
+                                    </sequential>
+                                </branching>
+                                <node>mul</node>
+                            </sequential>
+                            <sequential>
+                                <node>add</node>
+                                <node>reshape</node>
+                                <node>transpose</node>
+                                <node>mul</node>
+                            </sequential>
+                        </branchedStart>
+                        <node>matmul</node>
+                        <node>add</node>
+                        <node>softmax</node>
+                    </sequential>
+                    <sequential>
+                        <node>add</node>
+                        <node>reshape</node>
+                        <node>transpose</node>
+                    </sequential>
+                </branchedStart>
+                <node>matmul</node>
+                <node>transpose</node>
+                <node>reshape</node>
+            </sequential>
+        </nodes>
+    </OperationGroup>
+    <OperationGroupa>
+        <name>small_flash_attention_forward</name>
+        <kernelNameRegex>.*flash_fwd_kernel.*</kernelNameRegex>
+        <nodes>
+            <branchedStart>
+                <sequential>
+                    <node>add</node>
+                    <node>reshape</node>
+                    <node>transpose</node>
+                </sequential>
+                <sequential>
+                    <node>add</node>
+                    <node>reshape</node>
+                    <node>transpose</node>
+                </sequential>
+            </branchedStart>
+        </nodes>
+    </OperationGroupa>
+</nodetypes>

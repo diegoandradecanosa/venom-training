@@ -1,0 +1,16 @@
+{
+  "speedups": [
+    {
+        "op_id": "2",
+        "speedup": 2
+    },
+    {
+        "op_id": "7",
+        "speedup": 3
+    },
+    {
+        "op_type": "add-normalization",
+        "speedup": 2
+    }
+  ]
+}
