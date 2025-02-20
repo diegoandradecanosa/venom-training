@@ -7,7 +7,7 @@ The scripts and programs included in this folder are explained in the following 
 * `sparse_distributed.sh`: Bash script that interacts with SLURM and define `BATCH_SIZE` and `NOMBRE_TRAZA` as the inputs of the user. An example of use could be `sbatch sparse_distributed.sh 32 traces_batch-size-32`
 * `setup.sh`: Script that creates the python enviroment used in these analysis.
 * `extract_times_from_traces.py`: Program that extract the times of the steps, GEMM kernels and spatha kernels. It generates a json with the results.
-* `recipe_example.yaml': SparseML recipe with the VENOM modifier at the epoch 25.
+* `recipe_example.yaml`: SparseML recipe with the VENOM modifier at the epoch 25.
 * `graphics.py`: Python program used (out of the test enviroment) to create the report figures.
 
 The workflow used is the following: We used sparse_distributed.sh to generate the traces and with extract_times_from_traces.py we can use external development enviroments (like Spyder or Jupyter Notebook) and the program graphics.py to see the performance of the model in different configurations.
