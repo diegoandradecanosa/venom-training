@@ -17,10 +17,8 @@ The last major capability is the option to apply speedups to certain CUDA-backed
 Below is an example SVG output for a BERT mini layer si it can be easily read. The color indicates the ratio of total time each node represents, greener color indicate more costly operations where optimization efforts should be focused. The critical path is indicated as a dark red highligh of nodes and edges:
 
 
-[//]: # ![Bert mini layer graph with critical highlighted](https://github.com/diego-teijeiro/venom-training/blob/main/amdahl4ML/bert-mini_profiling/bert-mini_layer_cuda_grouped_critical_path.svg?raw=true)
+![Bert mini layer graph with critical highlighted](https://github.com/diego-teijeiro/venom-training/blob/main/amdahl4ML/bert-mini_profiling/bert-mini_layer_cuda_grouped_critical_path.svg?raw=true)
 
-
-![Bert mini layer graph with critical highlighted](amdahl4ML/bert-mini_profiling/bert-mini_layer_cuda_grouped_critical_path.svg)
 
 ## Dependencies
 
@@ -51,7 +49,7 @@ prof.export_chrome_trace("trace_dense.json")
 The next step is to launch this tool to parse the ONNX representation of the model, and create a graph. The trace file can be provided using an optional argument:
 
 ```
-python custom_graph_drawer.py --rankdir LR --traces trace_dense.json --input model.onnx --output output.json --svg svg_file.svg
+python custom_graph_drawer.py --rankdir TB --traces trace_dense.json --input model.onnx --output output.json --svg svg_file.svg
 ```
 
 Required arguments:
@@ -60,7 +58,7 @@ Required arguments:
 
 Optional arguments: 
 * --traces trace_dense.json: If provided, timing information is added to the graph, calculating speedups and colorizing the nodes based on the potential for optimization in a red-green gradient, as well as identifying the critical path in this execution.
-* --rankdir LR: The direction of the graph, "TB" for top-to-bottom or vertically spread graph, or "LR" for left-to-right or horizontally spread graph. Default is "TB".
+* --rankdir TB: The direction of the graph, "TB" for top-to-bottom or vertically spread graph, or "LR" for left-to-right or horizontally spread graph. Default is "TB".
 * --embed_docstring: Embed docstring as javascript alert. Useful for SVG format.
 * --svg svg_file.svg: Export graph in SVG format to the indicated file.
 * --speedups speedups.json: JSON with achievable speedups for different ops to generate updated timing information.
