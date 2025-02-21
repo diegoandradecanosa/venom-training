@@ -10,6 +10,6 @@ The scripts and programs included in this folder are explained in the following 
 * `recipe_example.yaml`: SparseML recipe with the VENOM modifier at the epoch 25.
 * `graphics.py`: Python program used (out of the test enviroment) to create the report figures.
 
-The workflow used is the following: We used sparse_distributed.sh to generate the traces and with extract_times_from_traces.py we can use external development enviroments (like Spyder or Jupyter Notebook) and the program graphics.py to see the performance of the model in different configurations.
+The workflow used is the following: We used `sparse_distributed.sh` (that internally calls `sparsified_model_distributed.py`) to generate the traces, and with extract_times_from_traces.py we can use external development enviroments (like Spyder or Jupyter Notebook) and the program graphics.py to see the performance of the model in different configurations.
 
 Finally, in order to use tensorboard, you must execute the command `pip install torch-tb-profiler` in the python enviroment. Using `tensorboard --host <your-host> --logdir <trace-directory>` you can open a tensorboard profiler enviroment to see additional results used in our informs
