@@ -12,7 +12,7 @@ module load CUDA
 source python_enviroment/bin/activate
 
 export BATCH_SIZE=$1
-export NOMBRE_TRAZA=$2
+export TRACE_FOLDER_NAME=$2
 
 export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 echo "MASTER_PORT="$MASTER_PORT
