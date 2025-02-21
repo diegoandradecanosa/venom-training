@@ -64,7 +64,7 @@ def main():
     rank = int(os.environ['SLURM_PROCID'])
     world_size = int(os.environ['WORLD_SIZE'])
     local_rank = int(os.environ['SLURM_LOCALID'])
-    traza =str(os.environ['NOMBRE_TRAZA'])
+    trace =str(os.environ['TRACE_FOLDER_NAME'])
 
     torch.cuda.set_device(local_rank)
     setup(rank, world_size)
@@ -98,7 +98,7 @@ def main():
     #must be selected carefully in order to avoid overloads or errors
     with torch.profiler.profile(
         schedule=torch.profiler.schedule(wait=20, warmup=2, active=1),
-        on_trace_ready=torch.profiler.tensorboard_trace_handler(f'../traces/{traza}'),
+        on_trace_ready=torch.profiler.tensorboard_trace_handler(f'../traces/{trace}'),
         record_shapes=True,
         profile_memory=True,
         with_stack=True) as profiler:
