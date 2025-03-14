@@ -6,6 +6,21 @@ This repository hosts several tools developed under the Inno4scale project Enabl
 
 Software tool to help guide optimization efforts by providing visual representation of the execution time of each part of the model and critical path information, as well as total execution time predictions and updated visualizations of the execution time if indicated speedups for indicated operations are applied.
 
+
+## Performance analysis
+
+The performance_analysis folder contains scripts to execute benchmarks used to measure the effects of the VENOM kernels when used in a BERT model, and scripts to process the collected data and create graphs for analysis.
+
+
+## Sparse kernels
+
+The sparse_kernels folder contains the two python modules that provide VENOM's SPMM and SDDMM kernel calls. Each kernels is provided on its own python module.
+
+
+## Test and benchmarks
+
+The test_and_benchmarks folder contains miscellaneous files used during development to test different issues, check for correcteness and benchmark performance of specific parts.
+
 ## Sparseml integration
 
 ### Description

@@ -1,6 +1,6 @@
 # SPMM module
 
-This folder contains the source files for the python module providing the SPMM call.
+This folder contains the source files for the python module providing the SPMM calls.
 
 ## Requirements
 
@@ -9,7 +9,7 @@ This module should be installed from a working CUDA environment, including a wor
 
 ## Installation
 
-If you are using a V value of 64 in your VENOM formats, run the install_v64.sh script to unnistall an existing version of this module, compile and install this version in your python environment, as follows:
+If you are using a V value of 64 in your VENOM formats, run the install_v64.sh script to uninstall an existing version of this module, compile and install this version in your python environment, as follows:
 
 ```
 bash ./install_v64.sh

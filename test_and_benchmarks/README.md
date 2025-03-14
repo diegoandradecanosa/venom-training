@@ -5,12 +5,18 @@ This folder contains several scripts for testing the correctness of the venom ke
 
 This folder also contains some helpful script to process result data, or perform specific small tests.
 
+
 ## Results
+
 Results obtained with these scripts, as well as graphics derived from them, are stored in this folder.
+
+## spatha integration testing
+
+Contains files for a short test running the BERT model once for the forward and backwards pass using the spatha modules.
 
 ## Short tests
 
-The first set of tests are the bench_end2end scripts. These execute the model in the forward and backward pass to check the venom kernels work correctly. Using bench_end2end_dense.py as an example, to run it use the follwoing command:
+The first set of tests are the bench_end2end scripts. These execute the model in the forward and backward pass to check the venom kernels work correctly. Using bench_end2end_dense.py as an example, to run it use the following command:
 
 ```
 python bench_end2end_dense.py -v 64 -n 2 -m 8 -bs 16
@@ -32,5 +38,7 @@ These scripts use DDP parallelism and should be executed in a valid distributed 
 python epoch_training_dense -v 64 -n 2 -m 8 -bs 16
 ```
 
-The command arguments are the same as the short tests scripts.
+The command arguments are the same as the short tests scripts. 
+
+Data collected and data processing scripts for these test can be found on results/Epoch_training
 
