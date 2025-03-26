@@ -21,6 +21,7 @@ import torch.distributed as dist
 from torch.profiler import profile, record_function, ProfilerActivity
 from torch.utils.data import DataLoader, DistributedSampler
 
+import time
 import timeit
 import argparse
 import numpy as np
@@ -157,11 +158,20 @@ def transformer_encoder_layer_prototype(num_repeats, number, rank, world_size):
 
         
     else:
+        
+        start = time.time_ns()
+        train_epoch(distributed_model, train_loader, 1, rank, None)
+        end = time.time_ns()
+        total_time_nanoseconds = end-start
+        print("name,v,n,m,bs,total_milliseconds")
+        print('dense'+","+str(v)+","+str(n)+","+str(m)+","+str(bs)+","+str(total_time_nanoseconds/1000000))
+        
         # No profiling, repeat multiple times to measure statistically reliable times.
+               
         #warmup
-        timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=1, number=number, globals=locals())
-        sparse_times = timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=num_repeats, number=number, globals=locals())
-        report_time('dense', 0, 0, 0, bs, sparse_times, number)
+        #timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=1, number=number, globals=locals())
+        #sparse_times = timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=num_repeats, number=number, globals=locals())
+        #report_time('dense', 0, 0, 0, bs, sparse_times, number)
 
     cleanup()
 

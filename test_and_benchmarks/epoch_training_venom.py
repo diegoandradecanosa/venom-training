@@ -21,6 +21,7 @@ import torch.distributed as dist
 from torch.profiler import profile, record_function, ProfilerActivity
 from torch.utils.data import DataLoader, DistributedSampler
 
+import time
 import timeit
 import argparse
 import numpy as np
@@ -47,6 +48,14 @@ bs         = args.bs
 
 
 def train_epoch(model, train_loader, epoch, rank, profiler):
+    
+    #import sys
+    #if 'venom_sparse_operations' not in sys.modules:
+    #import venom_sparse_operations as internal_vsp
+    #internal_vsp.reset_time_accumulators()
+    venom_times = vsp.transposition_reshape_timer()
+    venom_times.reset_times()
+    
     for batch_idx, batch in enumerate(train_loader):
             
         input_ids, attention_mask, labels = (
@@ -93,13 +102,16 @@ def train_epoch(model, train_loader, epoch, rank, profiler):
         if batch_idx % 10 == 0 and rank == 0:
             print(f'Train Epoch: {epoch} [{batch_idx * len(input_ids)}/{len(train_loader)*len(input_ids)} '
                   f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
+            
+    print("Accumulated SPMM transpose time:", venom_times.spmm_transposition_time/1000000, "milliseconds.")# Accumulator gives nanoseconds, convert to milli
+    print("Accumulated SDDMM transpose time:", venom_times.sddmm_transposition_time/1000000, "milliseconds.")# Accumulator gives nanoseconds, convert to milli
 
 
-def report_time(name, v, n, m, bs, data, number):
+def report_time(name, v, n, m, bs, data, number, time_offset_milliseconds):
     for d in data:
-        time_ms = d / number * 1000
+        time_ms = (d / number * 1000)+time_offset_milliseconds
         #print(f'n {n} m {m} format {name} time_ms {time_ms:.3f}')
-    ds = [(d / number * 1000) for d in data]
+    ds = [(d / number * 1000)+time_offset_milliseconds for d in data]
     mean = statistics.mean(ds)
     median = statistics.median(ds)
     std = statistics.stdev(ds)
@@ -118,12 +130,12 @@ def cleanup():
 
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.nn.parallel import DistributedDataParallel as DDP
-from datasets import load_from_disk
+from datasets import load_from_disk, DatasetDict
 
 
 def load_distributed_model_and_train(num_repeats, number, rank, world_size):
     
-    
+    venom_times = vsp.transposition_reshape_timer()
     
     model_name = 'bert-large-uncased'
     model_downloaded_folder='./bert-large-uncased-binary'
@@ -136,6 +148,15 @@ def load_distributed_model_and_train(num_repeats, number, rank, world_size):
     # Load dataset
     #dataset = load_dataset("squad")
     dataset = load_from_disk('../../../../pancho/Decaulion_env/sst2_dataset')
+    
+    # truncate dataset to 10 batches to perform short tests.
+    #max_samples =bs*10
+    #truncated_dataset = DatasetDict({
+    #    split: split_dataset.take(max_samples)
+    #    for split, split_dataset in dataset.items()
+    #})
+    #dataset = truncated_dataset
+    
     tokenizer = AutoTokenizer.from_pretrained(model_downloaded_folder)
     encoded_dataset = dataset.map(lambda examples: tokenizer(examples['sentence'], padding='max_length', truncation=True, max_length=128), batched=True)
     train_sampler = DistributedSampler(encoded_dataset['train'], num_replicas=world_size, rank=rank)
@@ -178,10 +199,19 @@ def load_distributed_model_and_train(num_repeats, number, rank, world_size):
 
         
     else:
+        
+        start = time.time_ns()
+        train_epoch(distributed_model, train_loader, 1, rank, None)
+        end = time.time_ns()
+        total_time_nanoseconds = end-start
+        print("name,v,n,m,bs,total_milliseconds,milliseconds_excluding_transpose")
+        print('venom'+","+str(v)+","+str(n)+","+str(m)+","+str(bs)+","+str(total_time_nanoseconds/1000000)+","+str((total_time_nanoseconds-venom_times.sddmm_transposition_time)/1000000))
+        
+        
         # No profiling, repeat multiple times to measure statistically reliable times.
-        timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=10, number=number, globals=locals())
-        sparse_times = timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=num_repeats, number=number, globals=locals())
-        report_time('venom', v, n, m, bs, sparse_times, number)
+        #timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=10, number=number, globals=locals())
+        #sparse_times = timeit.repeat(setup='from __main__ import train_epoch', stmt='train_epoch(distributed_model, train_loader, 1, rank, None)', repeat=num_repeats, number=number, globals=locals())
+        #report_time('venom', v, n, m, bs, sparse_times, number)
 
     cleanup()
         #with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True, with_stack=True) as prof:
@@ -209,4 +239,4 @@ if __name__ == "__main__":
     setup(rank, world_size)
     
     torch.set_grad_enabled(False)
-    load_distributed_model_and_train(num_repeats=5, number=1, rank=rank, world_size=world_size)
+    load_distributed_model_and_train(num_repeats=1, number=1, rank=rank, world_size=world_size)
